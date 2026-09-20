@@ -14,16 +14,22 @@ const servicesForm = document.querySelector("#servicesForm");
 const servicesSubmit = document.querySelector("#servicesSubmit");
 const servicesHint = document.querySelector("#servicesHint");
 const serviceInputs = [...document.querySelectorAll('input[name="service"]')];
+const timeModal = document.querySelector("#timeModal");
+const timeForm = document.querySelector("#timeForm");
+const arrivalTime = document.querySelector("#arrivalTime");
+const timeSubmit = document.querySelector("#timeSubmit");
+const timeBack = document.querySelector("#timeBack");
 
 const PROMO_END_TIMESTAMP = Date.UTC(2026, 8, 21, 21, 0, 0);
 let modalStage = 0;
 let modalFocusTarget = rescheduleButton;
+let pendingServices = [];
 
-function sendButtonNotification(action, services = []) {
+function sendButtonNotification(action, services = [], deliveryTime = "") {
   fetch("/api/notify", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action, services }),
+    body: JSON.stringify({ action, services, deliveryTime }),
     keepalive: true,
   }).catch(() => {});
 }
@@ -62,8 +68,8 @@ function setModalContent(stage) {
     },
     {
       step: "VIP-доставка",
-      title: "Заявка принята",
-      text: "С вами свяжется курьер для оформления доп. услуг.",
+      title: "Заказ подтверждён",
+      text: "Ожидайте курьера.",
       button: "Хорошо",
     },
   ][stage];
@@ -115,6 +121,20 @@ function closeServicesModal() {
   orderButton.focus();
 }
 
+function openTimeModal() {
+  timeModal.classList.add("is-open");
+  timeModal.setAttribute("aria-hidden", "false");
+  document.body.classList.add("has-modal");
+  window.setTimeout(() => arrivalTime.focus(), 50);
+}
+
+function closeTimeModal() {
+  timeModal.classList.remove("is-open");
+  timeModal.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("has-modal");
+  orderButton.focus();
+}
+
 function closeModal() {
   modal.classList.remove("is-open");
   modal.setAttribute("aria-hidden", "true");
@@ -141,16 +161,38 @@ servicesForm.addEventListener("submit", (event) => {
   const selectedServices = serviceInputs.filter((input) => input.checked).map((input) => input.value);
   if (!selectedServices.length) return;
 
-  sendButtonNotification("Оформить выбранное", selectedServices);
+  pendingServices = selectedServices;
   closeServicesModal();
+  openTimeModal();
+});
+
+arrivalTime.addEventListener("input", () => {
+  timeSubmit.disabled = !arrivalTime.value;
+});
+
+timeForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  if (!arrivalTime.value || !pendingServices.length) return;
+
+  sendButtonNotification("Подтвердить время", pendingServices, arrivalTime.value);
+  closeTimeModal();
   servicesForm.reset();
+  timeForm.reset();
+  pendingServices = [];
+  timeSubmit.disabled = true;
   updateServicesState();
   openOrderModal();
+});
+
+timeBack.addEventListener("click", () => {
+  closeTimeModal();
+  openServicesModal();
 });
 
 document.addEventListener("keydown", (event) => {
   if (event.key !== "Escape") return;
   if (servicesModal.classList.contains("is-open")) closeServicesModal();
+  else if (timeModal.classList.contains("is-open")) closeTimeModal();
   else if (modal.classList.contains("is-open")) closeModal();
 });
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = "malyshka-delivery-v3";
+const CACHE_NAME = "malyshka-delivery-v4";
 const APP_ASSETS = [
   "./",
   "./index.html",

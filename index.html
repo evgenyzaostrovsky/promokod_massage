@@ -154,6 +154,25 @@
       </section>
     </div>
 
+    <div class="modal time-modal" id="timeModal" aria-hidden="true">
+      <div class="modal__backdrop"></div>
+      <section class="modal__card" role="dialog" aria-modal="true" aria-labelledby="timeModalTitle">
+        <span class="modal__line"></span>
+        <p class="modal__step">Время доставки</p>
+        <h2 id="timeModalTitle">Когда приехать курьеру?</h2>
+        <form id="timeForm">
+          <label class="time-field">
+            <span>Выберите время</span>
+            <input id="arrivalTime" type="time" name="arrivalTime" required />
+          </label>
+          <div class="time-modal__actions">
+            <button class="button button--primary modal__button" id="timeSubmit" data-notify="manual" type="submit" disabled>Подтвердить</button>
+            <button class="button button--secondary modal__button" id="timeBack" data-notify="manual" type="button">Назад к услугам</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
     <script src="script.js"></script>
   </body>
 </html>

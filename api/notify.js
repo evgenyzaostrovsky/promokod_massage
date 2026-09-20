@@ -5,6 +5,7 @@ const ALLOWED_ACTIONS = new Set([
   "Ок",
   "Хорошо",
   "Оформить выбранное",
+  "Подтвердить время",
 ]);
 
 const ALLOWED_SERVICES = new Set([
@@ -43,13 +44,14 @@ export default async function handler(request, response) {
         ALLOWED_SERVICES.has(service)
       )
     : [];
+  const deliveryTime = String(body?.deliveryTime || "").trim();
 
   if (!ALLOWED_ACTIONS.has(action)) {
     return response.status(400).json({ error: "Unknown action" });
   }
 
-  if (action === "Оформить выбранное" && !services.length) {
-    return response.status(400).json({ error: "No services selected" });
+  if (action === "Подтвердить время" && (!services.length || !/^([01]\d|2[0-3]):[0-5]\d$/.test(deliveryTime))) {
+    return response.status(400).json({ error: "Invalid order details" });
   }
 
   const timestamp = new Intl.DateTimeFormat("ru-RU", {
@@ -61,13 +63,14 @@ export default async function handler(request, response) {
   const servicesText = services.length
     ? `\n\nВыбранные услуги:\n${services.map((service) => `• ${service}`).join("\n")}`
     : "";
+  const deliveryTimeText = deliveryTime ? `\n🛵 Время приезда: ${deliveryTime}` : "";
 
   const telegramResponse = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       chat_id: chatId,
-      text: `🔥 Нажата кнопка: ${action}${servicesText}\n\n🕒 ${timestamp} МСК`,
+      text: `🔥 Нажата кнопка: ${action}${servicesText}${deliveryTimeText}\n\n🕒 ${timestamp} МСК`,
     }),
   });
 
