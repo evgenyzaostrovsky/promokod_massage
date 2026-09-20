@@ -4,7 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
     <meta name="theme-color" content="#080808" />
-    <title>VIP-доставка</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Малышка's Delivery" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="Малышка's Delivery" />
+    <meta name="description" content="VIP-доставка от Малышка's Delivery" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/icon-180.png" />
+    <title>Малышка's Delivery</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -26,8 +35,12 @@
       </svg>
 
       <section class="content">
+        <header class="brand">
+          <img class="brand__icon" src="assets/pepper-white.png" alt="" width="50" height="50" />
+          <h1>Малышка's <em>Delivery</em></h1>
+        </header>
         <p class="eyebrow">Ваш персональный промокод</p>
-        <h1>Срок действия<br />промокода</h1>
+        <h2 class="promo-title">Срок действия<br />промокода</h2>
 
         <div class="timer" role="timer" aria-live="polite" aria-label="До окончания действия промокода">
           <div class="timer__unit"><span id="hours">00</span><small>часов</small></div>
