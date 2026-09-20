@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <meta name="theme-color" content="#080808" />
+    <title>VIP-доставка</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <div class="glow glow--top" aria-hidden="true"></div>
+      <div class="glow glow--bottom" aria-hidden="true"></div>
+
+      <svg class="flower flower--top" viewBox="0 0 210 250" aria-hidden="true">
+        <g fill="none" stroke="currentColor" stroke-width="1.1">
+          <path d="M177 9c-21 53-57 79-96 112-30 25-49 61-57 111" />
+          <path d="M128 72c22-13 48-11 63 3-20 18-48 18-68 2" />
+          <path d="M87 119c-5-29-25-50-49-54-2 25 15 51 44 60" />
+          <path d="M58 158c23-12 48-8 61 8-20 17-48 14-65-2" />
+          <path d="M174 12c-12 5-19 17-17 29 13 0 24-11 26-24-1-4-4-6-9-5Z" />
+        </g>
+      </svg>
+
+      <section class="content">
+        <p class="eyebrow">Ваш персональный промокод</p>
+        <h1>Срок действия<br />промокода</h1>
+
+        <div class="timer" role="timer" aria-live="polite" aria-label="До окончания действия промокода">
+          <div class="timer__unit"><span id="hours">00</span><small>часов</small></div>
+          <span class="timer__divider">:</span>
+          <div class="timer__unit"><span id="minutes">00</span><small>минут</small></div>
+          <span class="timer__divider">:</span>
+          <div class="timer__unit"><span id="seconds">00</span><small>секунд</small></div>
+        </div>
+        <p class="timezone">до 24:00 · МСК</p>
+      </section>
+
+      <div class="actions">
+        <button class="button button--primary" id="orderButton" type="button">Оформить VIP-доставку</button>
+        <button class="button button--secondary" id="rescheduleButton" type="button">Перенести VIP-доставку</button>
+      </div>
+
+      <svg class="flower flower--bottom" viewBox="0 0 210 250" aria-hidden="true">
+        <g fill="none" stroke="currentColor" stroke-width="1.1">
+          <path d="M177 9c-21 53-57 79-96 112-30 25-49 61-57 111" />
+          <path d="M128 72c22-13 48-11 63 3-20 18-48 18-68 2" />
+          <path d="M87 119c-5-29-25-50-49-54-2 25 15 51 44 60" />
+          <path d="M58 158c23-12 48-8 61 8-20 17-48 14-65-2" />
+        </g>
+      </svg>
+    </main>
+
+    <div class="modal" id="modal" aria-hidden="true">
+      <div class="modal__backdrop"></div>
+      <section class="modal__card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <span class="modal__line"></span>
+        <p class="modal__step" id="modalStep">Подтверждение</p>
+        <h2 id="modalTitle">Вы уверены?</h2>
+        <p class="modal__text" id="modalText">Перенести VIP-доставку на другую дату?</p>
+        <button class="button button--primary modal__button" id="modalButton" type="button">Да</button>
+      </section>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
