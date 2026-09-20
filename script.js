@@ -13,6 +13,15 @@ const MOSCOW_OFFSET_MS = 3 * 60 * 60 * 1000;
 let modalStage = 0;
 let modalFocusTarget = rescheduleButton;
 
+function sendButtonNotification(action) {
+  fetch("/api/notify", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ action }),
+    keepalive: true,
+  }).catch(() => {});
+}
+
 function getMillisecondsUntilMoscowMidnight() {
   const now = Date.now();
   const moscowNow = new Date(now + MOSCOW_OFFSET_MS);
@@ -109,6 +118,11 @@ orderButton.addEventListener("click", openOrderModal);
 
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && modal.classList.contains("is-open")) closeModal();
+});
+
+document.addEventListener("click", (event) => {
+  const button = event.target.closest("button");
+  if (button) sendButtonNotification(button.textContent.trim());
 });
 
 updateTimer();
