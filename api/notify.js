@@ -4,6 +4,18 @@ const ALLOWED_ACTIONS = new Set([
   "Да",
   "Ок",
   "Хорошо",
+  "Оформить выбранное",
+]);
+
+const ALLOWED_SERVICES = new Set([
+  "Классический массаж",
+  "Массаж ножек",
+  "Эротический массаж",
+  "Ролевые игры",
+  "БДСМ-практики",
+  "Светское сопровождение",
+  "Кунилингус и ласки",
+  "Психологическая поддержка и забота",
 ]);
 
 export default async function handler(request, response) {
@@ -26,9 +38,18 @@ export default async function handler(request, response) {
     return response.status(400).json({ error: "Invalid JSON" });
   }
   const action = String(body?.action || "").trim();
+  const services = Array.isArray(body?.services)
+    ? [...new Set(body.services.map((service) => String(service).trim()))].filter((service) =>
+        ALLOWED_SERVICES.has(service)
+      )
+    : [];
 
   if (!ALLOWED_ACTIONS.has(action)) {
     return response.status(400).json({ error: "Unknown action" });
+  }
+
+  if (action === "Оформить выбранное" && !services.length) {
+    return response.status(400).json({ error: "No services selected" });
   }
 
   const timestamp = new Intl.DateTimeFormat("ru-RU", {
@@ -37,12 +58,16 @@ export default async function handler(request, response) {
     timeStyle: "medium",
   }).format(new Date());
 
+  const servicesText = services.length
+    ? `\n\nВыбранные услуги:\n${services.map((service) => `• ${service}`).join("\n")}`
+    : "";
+
   const telegramResponse = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       chat_id: chatId,
-      text: `🔥 Нажата кнопка: ${action}\n🕒 ${timestamp} МСК`,
+      text: `🔥 Нажата кнопка: ${action}${servicesText}\n\n🕒 ${timestamp} МСК`,
     }),
   });
 

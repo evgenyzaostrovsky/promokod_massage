@@ -49,7 +49,7 @@
           <span class="timer__divider">:</span>
           <div class="timer__unit"><span id="seconds">00</span><small>секунд</small></div>
         </div>
-        <p class="timezone">до 24:00 · МСК</p>
+        <p class="timezone">до 24:00 · 21.09 · МСК</p>
       </section>
 
       <div class="actions">
@@ -75,6 +75,82 @@
         <h2 id="modalTitle">Вы уверены?</h2>
         <p class="modal__text" id="modalText">Перенести VIP-доставку на другую дату?</p>
         <button class="button button--primary modal__button" id="modalButton" type="button">Да</button>
+      </section>
+    </div>
+
+    <div class="services-modal" id="servicesModal" aria-hidden="true">
+      <div class="services-modal__backdrop"></div>
+      <section class="services-modal__sheet" role="dialog" aria-modal="true" aria-labelledby="servicesTitle">
+        <header class="services-modal__header">
+          <div>
+            <p class="modal__step">Дополнительные услуги</p>
+            <h2 id="servicesTitle">Выберите удовольствие</h2>
+          </div>
+          <button class="services-modal__close" id="servicesClose" data-notify="manual" type="button" aria-label="Закрыть">×</button>
+        </header>
+
+        <form id="servicesForm">
+          <fieldset class="services-group">
+            <legend>Виды массажа</legend>
+
+            <label class="service-card">
+              <input type="checkbox" name="service" value="Классический массаж" />
+              <span class="service-card__check"></span>
+              <span><strong>Классический массаж</strong><small>Нежное, но уверенное разминание каждой мышцы вашего тела. Сильные мужские руки снимут всё напряжение, заставят вас сладко потягиваться от удовольствия и полностью расслабиться, подготавливая тело к более горячему продолжению.</small></span>
+            </label>
+
+            <label class="service-card">
+              <input type="checkbox" name="service" value="Массаж ножек" />
+              <span class="service-card__check"></span>
+              <span><strong>Массаж ножек</strong><small>Невероятно возбуждающий ритуал. Чуткие пальцы пройдутся от кончиков пальцев до внутренней стороны бёдер, дразня и заставляя кожу покрываться мурашками. Каждое прикосновение будет медленно, но верно подбираться к самым сокровенным зонам.</small></span>
+            </label>
+
+            <label class="service-card">
+              <input type="checkbox" name="service" value="Эротический массаж" />
+              <span class="service-card__check"></span>
+              <span><strong>Эротический массаж</strong><small>Полное погружение в блаженство, где главным инструментом становится обнажённое мужское тело. Скольжение кожи о кожу, горячее дыхание и чувственные поглаживания по всему телу сведут с ума, разожгут дикую страсть и заставят умолять о большем.</small></span>
+            </label>
+          </fieldset>
+
+          <fieldset class="services-group">
+            <legend>Горячие удовольствия</legend>
+
+            <label class="service-card">
+              <input type="checkbox" name="service" value="Ролевые игры" />
+              <span class="service-card__check"></span>
+              <span><strong>Ролевые игры</strong><small>Реализация любых, даже самых смелых и грязных фантазий. Переступите черту дозволенного, отдайтесь во власть тайных желаний и сорвите все маски. Здесь нет места стеснению — только чистый кайф от воплощения ваших сценариев.</small></span>
+            </label>
+
+            <label class="service-card">
+              <input type="checkbox" name="service" value="БДСМ-практики" />
+              <span class="service-card__check"></span>
+              <span><strong>БДСМ-практики</strong><small>Игра на грани власти и подчинения, где вы можете полностью отдать контроль или, наоборот, заставить мужчину подчиняться. Связывание, лёгкое доминирование и чувственный плен обострят каждый нерв и доведут возбуждение до предела.</small></span>
+            </label>
+
+            <label class="service-card">
+              <input type="checkbox" name="service" value="Светское сопровождение" />
+              <span class="service-card__check"></span>
+              <span><strong>Светское сопровождение</strong><small>Рядом с вами будет роскошный, уверенный в себе мужчина, который приковывает взгляды окружающих и заставляет других женщин вам завидовать. Весь вечер он будет принадлежать только вам, шептать на ухо комплименты и подогревать ваше желание перед приватной частью ночи.</small></span>
+            </label>
+
+            <label class="service-card">
+              <input type="checkbox" name="service" value="Кунилингус и ласки" />
+              <span class="service-card__check"></span>
+              <span><strong>Кунилингус и ласки</strong><small>Одержимое и жадное доведение вас до пика. Горячие губы и влажный язык мужчины будут ласкать вашу самую чувствительную точку, подстраиваясь под каждый стон и вздох, пока ваше тело не содрогнётся в мощном, оглушительном и множественном оргазме.</small></span>
+            </label>
+
+            <label class="service-card">
+              <input type="checkbox" name="service" value="Психологическая поддержка и забота" />
+              <span class="service-card__check"></span>
+              <span><strong>Психологическая поддержка и забота</strong><small>Мужчина, который умеет не только соблазнять, но и боготворить. Вы окажетесь в центре абсолютного внимания, где вас будут слушать с восхищением, целовать пальцы, осыпать комплиментами и заставят почувствовать себя самой желанной женщиной на свете.</small></span>
+            </label>
+          </fieldset>
+
+          <div class="services-modal__footer">
+            <p id="servicesHint">Выберите хотя бы одну услугу</p>
+            <button class="button button--primary" id="servicesSubmit" data-notify="manual" type="submit" disabled>Оформить выбранное</button>
+          </div>
+        </form>
       </section>
     </div>
 

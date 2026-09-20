@@ -222,11 +222,136 @@ button { font: inherit; }
 .modal__text { margin: 0 auto 28px; max-width: 360px; color: rgba(255,255,255,.66); font-size: 14px; line-height: 1.55; }
 .modal__button { width: 100%; }
 
+.services-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity .25s ease, visibility .25s ease;
+}
+
+.services-modal.is-open { visibility: visible; opacity: 1; }
+.services-modal__backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.82); backdrop-filter: blur(9px); }
+
+.services-modal__sheet {
+  position: absolute;
+  inset: max(12px, env(safe-area-inset-top)) 0 0;
+  width: min(100%, 520px);
+  margin: 0 auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-top: 1px solid rgba(255,255,255,.2);
+  background: #0d0d0d;
+  transform: translateY(30px);
+  transition: transform .25s ease;
+}
+
+.services-modal.is-open .services-modal__sheet { transform: translateY(0); }
+
+.services-modal__header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 25px 22px 18px;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+  background: rgba(13,13,13,.96);
+  backdrop-filter: blur(12px);
+}
+
+.services-modal__header h2 {
+  margin: 7px 0 0;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 34px;
+  font-weight: 500;
+  line-height: .95;
+}
+
+.services-modal__close {
+  width: 40px;
+  height: 40px;
+  margin: -6px -7px 0 10px;
+  border: 0;
+  color: rgba(255,255,255,.7);
+  background: transparent;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 34px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.services-group {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 25px 18px 8px;
+  border: 0;
+}
+
+.services-group legend {
+  width: 100%;
+  padding: 0 4px 8px;
+  color: rgba(255,255,255,.55);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+}
+
+.service-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 12px;
+  padding: 17px 15px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.025);
+  cursor: pointer;
+  transition: border-color .18s ease, background .18s ease;
+}
+
+.service-card:has(input:checked) { border-color: rgba(255,255,255,.72); background: rgba(255,255,255,.075); }
+.service-card input { position: absolute; opacity: 0; pointer-events: none; }
+
+.service-card__check {
+  display: grid;
+  place-items: center;
+  width: 21px;
+  height: 21px;
+  margin-top: 1px;
+  border: 1px solid rgba(255,255,255,.36);
+}
+
+.service-card input:checked + .service-card__check { border-color: #f5f1eb; background: #f5f1eb; }
+.service-card input:checked + .service-card__check::after { content: "✓"; color: #0a0a0a; font-size: 13px; font-weight: 700; }
+.service-card strong { display: block; font-family: "Cormorant Garamond", serif; font-size: 22px; font-weight: 600; line-height: 1; }
+.service-card small { display: block; margin-top: 9px; color: rgba(255,255,255,.58); font-size: 12px; line-height: 1.55; }
+
+.services-modal__footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  padding: 13px 18px max(18px, env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(255,255,255,.1);
+  background: rgba(13,13,13,.96);
+  backdrop-filter: blur(12px);
+}
+
+.services-modal__footer p { margin: 0 0 10px; color: rgba(255,255,255,.48); font-size: 10px; letter-spacing: .08em; text-align: center; text-transform: uppercase; }
+.services-modal__footer .button { width: 100%; }
+.services-modal__footer .button:disabled { cursor: not-allowed; opacity: .32; }
+
+body.has-modal { overflow: hidden; }
+
 @media (min-width: 600px) {
   .page { width: 480px; margin: 0 auto; box-shadow: 0 0 90px rgba(0,0,0,.85); }
   .modal { align-items: center; }
   .modal__card { padding: 28px; border: 1px solid rgba(255,255,255,.2); }
   .modal__line { display: none; }
+  .services-modal__sheet { inset: 3vh 0; max-height: 94vh; border: 1px solid rgba(255,255,255,.18); }
 }
 
 @media (max-height: 650px) {
