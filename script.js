@@ -11,6 +11,7 @@ const orderButton = document.querySelector("#orderButton");
 
 const MOSCOW_OFFSET_MS = 3 * 60 * 60 * 1000;
 let modalStage = 0;
+let modalFocusTarget = rescheduleButton;
 
 function getMillisecondsUntilMoscowMidnight() {
   const now = Date.now();
@@ -56,6 +57,12 @@ function setModalContent(stage) {
       text: "Ожидайте курьера.",
       button: "Хорошо",
     },
+    {
+      step: "VIP-доставка",
+      title: "Заявка принята",
+      text: "С вами свяжется курьер для оформления доп. услуг.",
+      button: "Хорошо",
+    },
   ][stage];
 
   modalStep.textContent = content.step;
@@ -66,6 +73,16 @@ function setModalContent(stage) {
 
 function openModal() {
   modalStage = 0;
+  modalFocusTarget = rescheduleButton;
+  setModalContent(modalStage);
+  modal.classList.add("is-open");
+  modal.setAttribute("aria-hidden", "false");
+  window.setTimeout(() => modalButton.focus(), 50);
+}
+
+function openOrderModal() {
+  modalStage = 3;
+  modalFocusTarget = orderButton;
   setModalContent(modalStage);
   modal.classList.add("is-open");
   modal.setAttribute("aria-hidden", "false");
@@ -75,7 +92,7 @@ function openModal() {
 function closeModal() {
   modal.classList.remove("is-open");
   modal.setAttribute("aria-hidden", "true");
-  rescheduleButton.focus();
+  modalFocusTarget.focus();
 }
 
 rescheduleButton.addEventListener("click", openModal);
@@ -88,10 +105,7 @@ modalButton.addEventListener("click", () => {
   closeModal();
 });
 
-orderButton.addEventListener("click", () => {
-  orderButton.textContent = "VIP-доставка оформлена";
-  orderButton.disabled = true;
-});
+orderButton.addEventListener("click", openOrderModal);
 
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && modal.classList.contains("is-open")) closeModal();
