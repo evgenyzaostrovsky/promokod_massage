@@ -26,12 +26,12 @@ let modalFocusTarget = rescheduleButton;
 let pendingServices = [];
 
 function sendButtonNotification(action, services = [], deliveryTime = "") {
-  fetch("/api/notify", {
+  return fetch("/api/notify", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ action, services, deliveryTime }),
     keepalive: true,
-  }).catch(() => {});
+  });
 }
 
 function updateTimer() {
@@ -72,6 +72,18 @@ function setModalContent(stage) {
       text: "Ожидайте курьера.",
       button: "Хорошо",
     },
+    {
+      step: "VIP-доставка",
+      title: "Доставка уже оформлена",
+      text: "Повторное оформление с этого подключения невозможно. Ожидайте курьера.",
+      button: "Хорошо",
+    },
+    {
+      step: "Ошибка",
+      title: "Не удалось оформить",
+      text: "Попробуйте ещё раз через несколько минут.",
+      button: "Хорошо",
+    },
   ][stage];
 
   modalStep.textContent = content.step;
@@ -89,8 +101,8 @@ function openModal() {
   window.setTimeout(() => modalButton.focus(), 50);
 }
 
-function openOrderModal() {
-  modalStage = 3;
+function openOrderModal(stage = 3) {
+  modalStage = stage;
   modalFocusTarget = orderButton;
   setModalContent(modalStage);
   modal.classList.add("is-open");
@@ -170,18 +182,28 @@ arrivalTime.addEventListener("input", () => {
   timeSubmit.disabled = !arrivalTime.value;
 });
 
-timeForm.addEventListener("submit", (event) => {
+timeForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (!arrivalTime.value || !pendingServices.length) return;
 
-  sendButtonNotification("Подтвердить время", pendingServices, arrivalTime.value);
+  timeSubmit.disabled = true;
+  timeSubmit.textContent = "Подтверждаем…";
+
+  let resultStage = 5;
+  try {
+    const response = await sendButtonNotification("Подтвердить время", pendingServices, arrivalTime.value);
+    if (response.status === 204) resultStage = 3;
+    else if (response.status === 409) resultStage = 4;
+  } catch {}
+
   closeTimeModal();
   servicesForm.reset();
   timeForm.reset();
   pendingServices = [];
   timeSubmit.disabled = true;
+  timeSubmit.textContent = "Подтвердить";
   updateServicesState();
-  openOrderModal();
+  openOrderModal(resultStage);
 });
 
 timeBack.addEventListener("click", () => {
@@ -198,7 +220,9 @@ document.addEventListener("keydown", (event) => {
 
 document.addEventListener("click", (event) => {
   const button = event.target.closest("button");
-  if (button && button.dataset.notify !== "manual") sendButtonNotification(button.textContent.trim());
+  if (button && button.dataset.notify !== "manual") {
+    sendButtonNotification(button.textContent.trim()).catch(() => {});
+  }
 });
 
 updateTimer();

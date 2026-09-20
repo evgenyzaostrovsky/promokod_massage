@@ -10,5 +10,7 @@ API-функция `api/notify.js` рассчитана на Vercel. В наст
 
 - `TELEGRAM_BOT_TOKEN` — токен от BotFather;
 - `TELEGRAM_CHAT_ID` — ID чата, куда бот будет присылать уведомления.
+- `IP_HASH_SALT` — случайная секретная строка для необратимого хеширования IP;
+- `UPSTASH_REDIS_REST_URL` и `UPSTASH_REDIS_REST_TOKEN` — доступ к Upstash Redis для блокировки повторного заказа с одного IP (интеграция Vercel может использовать имена `KV_REST_API_URL` и `KV_REST_API_TOKEN`).
 
 Токен нельзя добавлять в исходный код или коммитить в GitHub.
