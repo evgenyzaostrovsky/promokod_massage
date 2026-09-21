@@ -6,6 +6,9 @@ const modalStep = document.querySelector("#modalStep");
 const modalTitle = document.querySelector("#modalTitle");
 const modalText = document.querySelector("#modalText");
 const modalButton = document.querySelector("#modalButton");
+const questGame = document.querySelector("#questGame");
+const questTarget = document.querySelector("#questTarget");
+const questCounter = document.querySelector("#questCounter");
 const rescheduleButton = document.querySelector("#rescheduleButton");
 const orderButton = document.querySelector("#orderButton");
 const servicesModal = document.querySelector("#servicesModal");
@@ -36,6 +39,21 @@ let modalFocusTarget = rescheduleButton;
 let pendingServices = [];
 let currentMode = "delivery";
 let pendingPreferences = "";
+let questActive = false;
+let questStep = 0;
+let gameHits = 0;
+const QUEST_QUESTIONS = [
+  "Вы точно хотите перенести VIP-доставку?",
+  "Даже если курьер уже морально собрался в путь?",
+  "Вы готовы объяснить ему, почему планы внезапно изменились?",
+  "А если он уже выбрал лучший маршрут к вам?",
+  "Вы помните, что перенос — это очень серьёзное решение?",
+  "Уточним: эротическая фотосессия в спальне обсуждается только по отдельному взаимному согласию. Продолжим квест?",
+  "Вы всё ещё надеетесь перенести доставку?",
+  "Перенос без эротической фотосессии? Курьер удивится. Но согласие всё равно только добровольное. Идём дальше?",
+  "Может, всё-таки просто дождаться курьера?",
+  "Последний вопрос: вы действительно прошли всё это ради переноса?",
+];
 
 function sendButtonNotification(action, details = {}) {
   return fetch("/api/notify", {
@@ -111,15 +129,37 @@ function setModalContent(stage) {
 }
 
 function openModal() {
-  modalStage = 0;
+  questActive = true;
+  questStep = 0;
+  gameHits = 0;
   modalFocusTarget = rescheduleButton;
-  setModalContent(modalStage);
+  modalStep.textContent = "Квест переноса · мини-игра";
+  modalTitle.textContent = "Поймайте перенос";
+  modalText.textContent = "Для начала нажмите на убегающую кнопку 5 раз.";
+  questCounter.textContent = "Поймайте кнопку: 0/5";
+  questTarget.style.left = "50%";
+  questTarget.style.top = "50%";
+  questGame.hidden = false;
+  modalButton.hidden = true;
   modal.classList.add("is-open");
   modal.setAttribute("aria-hidden", "false");
-  window.setTimeout(() => modalButton.focus(), 50);
+  window.setTimeout(() => questTarget.focus(), 50);
+}
+
+function showQuestQuestion() {
+  questGame.hidden = true;
+  modalButton.hidden = false;
+  modalStep.textContent = `Квест переноса · вопрос ${questStep + 1} из ${QUEST_QUESTIONS.length}`;
+  modalTitle.textContent = questStep === QUEST_QUESTIONS.length - 1 ? "Финальная проверка" : "Вы уверены?";
+  modalText.textContent = QUEST_QUESTIONS[questStep];
+  modalButton.textContent = questStep === QUEST_QUESTIONS.length - 1 ? "Узнать результат" : "Да, продолжить";
+  modalButton.focus();
 }
 
 function openOrderModal(stage = 3) {
+  questActive = false;
+  questGame.hidden = true;
+  modalButton.hidden = false;
   modalStage = stage;
   modalFocusTarget = orderButton;
   setModalContent(modalStage);
@@ -206,6 +246,7 @@ function closeTimeModal() {
 }
 
 function closeModal() {
+  questActive = false;
   modal.classList.remove("is-open");
   modal.setAttribute("aria-hidden", "true");
   modalFocusTarget.focus();
@@ -236,12 +277,34 @@ mainPage.addEventListener("touchend", (event) => {
 }, { passive: true });
 mainPage.addEventListener("touchcancel", () => { swipeStart = null; }, { passive: true });
 modalButton.addEventListener("click", () => {
-  if (modalStage < 2) {
-    modalStage += 1;
-    setModalContent(modalStage);
+  if (questActive) {
+    sendButtonNotification("Квест переноса", { questStep: questStep + 1 }).catch(() => {});
+    questStep += 1;
+    if (questStep < QUEST_QUESTIONS.length) {
+      showQuestQuestion();
+    } else {
+      questActive = false;
+      modalStage = 2;
+      setModalContent(2);
+    }
     return;
   }
+  sendButtonNotification("Хорошо").catch(() => {});
   closeModal();
+});
+
+questTarget.addEventListener("click", () => {
+  gameHits += 1;
+  questCounter.textContent = `Поймайте кнопку: ${gameHits}/5`;
+  if (gameHits === 5) {
+    sendButtonNotification("Мини-игра пройдена").catch(() => {});
+    showQuestQuestion();
+    return;
+  }
+  const positions = [[18, 25], [76, 72], [32, 78], [83, 27]];
+  const [x, y] = positions[gameHits - 1];
+  questTarget.style.left = `${x}%`;
+  questTarget.style.top = `${y}%`;
 });
 
 orderButton.addEventListener("click", openServicesModal);

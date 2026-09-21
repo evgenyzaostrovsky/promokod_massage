@@ -12,6 +12,8 @@ const ALLOWED_ACTIONS = new Set([
   "Забронировать Jenka Bar",
   "Выбрана VIP-доставка",
   "Выбран Jenka Bar",
+  "Мини-игра пройдена",
+  "Квест переноса",
 ]);
 const ALLOWED_ENTERTAINMENTS = new Set([
   "Море", "Душевные разговоры у костра", "Музыка", "Мангальная зона", "Кальян",
@@ -89,9 +91,13 @@ export default async function handler(request, response) {
     : [];
   const preferences = String(body?.preferences || "").trim().slice(0, 500);
   const address = String(body?.address || "").trim().slice(0, 200);
+  const questStep = Number(body?.questStep);
 
   if (!ALLOWED_ACTIONS.has(action)) {
     return response.status(400).json({ error: "Unknown action" });
+  }
+  if (action === "Квест переноса" && (!Number.isInteger(questStep) || questStep < 1 || questStep > 10)) {
+    return response.status(400).json({ error: "Invalid quest step" });
   }
 
   const isConfirmation = action === "Подтвердить время" || action === "Подтвердить бронирование";
@@ -147,7 +153,7 @@ export default async function handler(request, response) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       chat_id: chatId,
-      text: `🔥 ${isConfirmation ? mode === "delivery" ? "Новая VIP-доставка" : "Новая бронь Jenka Bar" : `Нажата кнопка: ${action}`}${servicesText}${entertainmentsText}${preferencesText}${deliveryTimeText}${bookingDateText}${addressText}\n\n🕒 ${timestamp} МСК`,
+      text: `🔥 ${isConfirmation ? mode === "delivery" ? "Новая VIP-доставка" : "Новая бронь Jenka Bar" : `Нажата кнопка: ${action}${action === "Квест переноса" ? ` · ${questStep}/10` : ""}`}${servicesText}${entertainmentsText}${preferencesText}${deliveryTimeText}${bookingDateText}${addressText}\n\n🕒 ${timestamp} МСК`,
     }),
   });
 

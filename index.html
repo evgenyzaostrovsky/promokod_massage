@@ -79,7 +79,11 @@
         <p class="modal__step" id="modalStep">Подтверждение</p>
         <h2 id="modalTitle">Вы уверены?</h2>
         <p class="modal__text" id="modalText">Перенести VIP-доставку на другую дату?</p>
-        <button class="button button--primary modal__button" id="modalButton" type="button">Да</button>
+        <div class="quest-game" id="questGame" hidden>
+          <p class="quest-game__counter" id="questCounter">Поймайте кнопку: 0/5</p>
+          <div class="quest-game__field"><button id="questTarget" type="button" data-notify="manual" aria-label="Поймать кнопку переноса">Перенести</button></div>
+        </div>
+        <button class="button button--primary modal__button" id="modalButton" data-notify="manual" type="button">Да</button>
       </section>
     </div>
 
