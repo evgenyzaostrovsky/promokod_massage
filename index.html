@@ -191,9 +191,13 @@
         <p class="modal__step">Время доставки</p>
         <h2 id="timeModalTitle">Когда приехать курьеру?</h2>
         <form id="timeForm">
-          <label class="time-field">
+          <label class="time-field" id="arrivalTimeField">
             <span>Выберите время</span>
             <input id="arrivalTime" type="time" name="arrivalTime" required />
+          </label>
+          <label class="time-field" id="bookingDateField" hidden>
+            <span>Выберите дату</span>
+            <input id="bookingDate" type="date" name="bookingDate" />
           </label>
           <div id="addressFields">
             <p class="address-city">Адрес доставки · г. Волгоград</p>

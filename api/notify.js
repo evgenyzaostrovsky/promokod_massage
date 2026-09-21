@@ -8,6 +8,7 @@ const ALLOWED_ACTIONS = new Set([
   "Хорошо",
   "Оформить выбранное",
   "Подтвердить время",
+  "Подтвердить бронирование",
   "Забронировать Jenka Bar",
   "Выбрана VIP-доставка",
   "Выбран Jenka Bar",
@@ -81,6 +82,7 @@ export default async function handler(request, response) {
       )
     : [];
   const deliveryTime = String(body?.deliveryTime || "").trim();
+  const bookingDate = String(body?.bookingDate || "").trim();
   const mode = body?.mode === "jenka" ? "jenka" : "delivery";
   const entertainments = Array.isArray(body?.entertainments)
     ? [...new Set(body.entertainments.map((item) => String(item).trim()))].filter((item) => ALLOWED_ENTERTAINMENTS.has(item))
@@ -92,10 +94,15 @@ export default async function handler(request, response) {
     return response.status(400).json({ error: "Unknown action" });
   }
 
-  if (action === "Подтвердить время" && (
+  const isConfirmation = action === "Подтвердить время" || action === "Подтвердить бронирование";
+  const validBookingDate = /^\d{4}-\d{2}-\d{2}$/.test(bookingDate) &&
+    !Number.isNaN(Date.parse(`${bookingDate}T00:00:00Z`)) &&
+    new Date(`${bookingDate}T00:00:00Z`).toISOString().slice(0, 10) === bookingDate &&
+    bookingDate >= new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Moscow", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+  if (isConfirmation && (
     !(mode === "delivery" ? services.length : entertainments.length) && !preferences ||
-    !/^([01]\d|2[0-3]):[0-5]\d$/.test(deliveryTime) ||
-    (mode === "delivery" && (!address || /[\r\n]/.test(address)))
+    (mode === "delivery" && (action !== "Подтвердить время" || !/^([01]\d|2[0-3]):[0-5]\d$/.test(deliveryTime) || !address || /[\r\n]/.test(address))) ||
+    (mode === "jenka" && (action !== "Подтвердить бронирование" || !validBookingDate))
   )) {
     return response.status(400).json({ error: "Invalid order details" });
   }
@@ -110,6 +117,7 @@ export default async function handler(request, response) {
     ? `\n\nВыбранные услуги:\n${services.map((service) => `• ${service}`).join("\n")}`
     : "";
   const deliveryTimeText = deliveryTime ? `\n${mode === "jenka" ? "🏡 Время бронирования" : "🛵 Время приезда"}: ${deliveryTime}` : "";
+  const bookingDateText = bookingDate && mode === "jenka" ? `\n🏡 Дата бронирования: ${bookingDate.split("-").reverse().join(".")}` : "";
   const entertainmentsText = entertainments.length
     ? `\n\nРазвлечения:\n${entertainments.map((item) => `• ${item}`).join("\n")}` : "";
   const preferencesText = preferences ? `\n\nПредпочтения: ${preferences}` : "";
@@ -139,7 +147,7 @@ export default async function handler(request, response) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       chat_id: chatId,
-      text: `🔥 ${action === "Подтвердить время" ? mode === "delivery" ? "Новая VIP-доставка" : "Новая бронь Jenka Bar" : `Нажата кнопка: ${action}`}${servicesText}${entertainmentsText}${preferencesText}${deliveryTimeText}${addressText}\n\n🕒 ${timestamp} МСК`,
+      text: `🔥 ${isConfirmation ? mode === "delivery" ? "Новая VIP-доставка" : "Новая бронь Jenka Bar" : `Нажата кнопка: ${action}`}${servicesText}${entertainmentsText}${preferencesText}${deliveryTimeText}${bookingDateText}${addressText}\n\n🕒 ${timestamp} МСК`,
     }),
   });
 

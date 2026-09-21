@@ -25,6 +25,7 @@ const timeModalTitle = document.querySelector("#timeModalTitle");
 const timeModal = document.querySelector("#timeModal");
 const timeForm = document.querySelector("#timeForm");
 const arrivalTime = document.querySelector("#arrivalTime");
+const bookingDate = document.querySelector("#bookingDate");
 const timeSubmit = document.querySelector("#timeSubmit");
 const timeBack = document.querySelector("#timeBack");
 
@@ -153,8 +154,12 @@ function setMode(mode) {
   servicesModal.querySelector(".modal__step").textContent = isDelivery ? "Дополнительные услуги" : "Jenka Bar";
   servicesSubmit.textContent = isDelivery ? "Оформить выбранное" : "Продолжить бронирование";
   timeModalTitle.textContent = isDelivery ? "Когда приехать курьеру?" : "Когда вас ждать?";
-  timeModal.querySelector(".modal__step").textContent = isDelivery ? "Время доставки" : "Время бронирования";
+  timeModal.querySelector(".modal__step").textContent = isDelivery ? "Время доставки" : "Дата бронирования";
   timeBack.textContent = isDelivery ? "Назад к услугам" : "Назад к развлечениям";
+  document.querySelector("#arrivalTimeField").hidden = !isDelivery;
+  document.querySelector("#bookingDateField").hidden = isDelivery;
+  arrivalTime.required = isDelivery;
+  bookingDate.required = !isDelivery;
   addressFields.hidden = !isDelivery;
   deliveryAddress.required = isDelivery;
   document.querySelectorAll(".services-group[data-mode]").forEach((group) => {
@@ -165,7 +170,9 @@ function setMode(mode) {
 }
 
 function updateTimeState() {
-  timeSubmit.disabled = !arrivalTime.value || (currentMode === "delivery" && !deliveryAddress.value.trim());
+  timeSubmit.disabled = currentMode === "delivery"
+    ? !arrivalTime.value || !deliveryAddress.value.trim()
+    : !bookingDate.value;
 }
 
 function openServicesModal() {
@@ -187,7 +194,7 @@ function openTimeModal() {
   timeModal.classList.add("is-open");
   timeModal.setAttribute("aria-hidden", "false");
   document.body.classList.add("has-modal");
-  window.setTimeout(() => arrivalTime.focus(), 50);
+  window.setTimeout(() => (currentMode === "delivery" ? arrivalTime : bookingDate).focus(), 50);
 }
 
 function closeTimeModal() {
@@ -241,23 +248,25 @@ servicesForm.addEventListener("submit", (event) => {
 });
 
 arrivalTime.addEventListener("input", updateTimeState);
+bookingDate.addEventListener("input", updateTimeState);
 deliveryAddress.addEventListener("input", updateTimeState);
 
 timeForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  if (!arrivalTime.value || (!pendingServices.length && !pendingPreferences) || (currentMode === "delivery" && !deliveryAddress.value.trim())) return;
+  if ((!pendingServices.length && !pendingPreferences) || timeSubmit.disabled) return;
 
   timeSubmit.disabled = true;
   timeSubmit.textContent = "Подтверждаем…";
 
   let resultStage = 5;
   try {
-    const response = await sendButtonNotification("Подтвердить время", {
+    const response = await sendButtonNotification(currentMode === "delivery" ? "Подтвердить время" : "Подтвердить бронирование", {
       mode: currentMode,
       services: currentMode === "delivery" ? pendingServices : [],
       entertainments: currentMode === "jenka" ? pendingServices : [],
       preferences: pendingPreferences,
-      deliveryTime: arrivalTime.value,
+      deliveryTime: currentMode === "delivery" ? arrivalTime.value : "",
+      bookingDate: currentMode === "jenka" ? bookingDate.value : "",
       address: currentMode === "delivery" ? deliveryAddress.value.trim() : "",
     });
     if (response.status === 204) resultStage = currentMode === "delivery" ? 3 : 6;
@@ -295,6 +304,7 @@ document.addEventListener("click", (event) => {
 });
 
 updateTimer();
+bookingDate.min = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Moscow", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
 setMode("delivery");
 window.setInterval(updateTimer, 250);
 

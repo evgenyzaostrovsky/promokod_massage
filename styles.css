@@ -259,6 +259,7 @@ button { font: inherit; }
 }
 
 .time-field input:focus { border-color: #f5f1eb; }
+.time-field input[type="date"] { font-size: 25px; }
 .address-city { margin: 18px 0 -10px; color: rgba(255,255,255,.7); font-size: 12px; text-align: left; }
 .address-field input { height: 55px; font-family: "Manrope", sans-serif; font-size: 14px; text-align: left; }
 .address-field input::placeholder { color: rgba(255,255,255,.34); }
