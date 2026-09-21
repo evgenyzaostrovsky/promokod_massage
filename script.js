@@ -112,12 +112,6 @@ function setModalContent(stage) {
       button: "Хорошо",
     },
     {
-      step: "VIP-доставка",
-      title: "Доставка уже оформлена",
-      text: "Повторное оформление с этого подключения невозможно. Ожидайте курьера.",
-      button: "Хорошо",
-    },
-    {
       step: "Ошибка",
       title: "Не удалось оформить",
       text: "Попробуйте ещё раз через несколько минут.",
@@ -194,7 +188,7 @@ function showPhotoStep() {
   questPhotoError.hidden = true;
   modalStep.textContent = "Квест переноса · шаг 2";
   modalTitle.textContent = "Ваше самое сексуальное фото";
-  modalText.textContent = "Чтобы продолжить квест, загрузите фото. Оно будет отправлено курьеру в Telegram. Перенос доставки в конце квеста всё равно невозможен.";
+  modalText.textContent = "Чтобы продолжить квест, загрузите фото. Оно будет отправлено курьеру в Telegram. Перенос доставки в конце квеста всё равно невозможен. Просто порадуйте курьера.";
   questPhotoFile.focus();
 }
 
@@ -234,11 +228,6 @@ function openOrderModal(stage = 3) {
   modalStage = stage;
   modalFocusTarget = orderButton;
   setModalContent(modalStage);
-  if (stage === 4 && currentMode === "jenka") {
-    modalStep.textContent = "Jenka Bar";
-    modalTitle.textContent = "Бронь уже оформлена";
-    modalText.textContent = "Повторное бронирование с этого подключения невозможно.";
-  }
   modal.classList.add("is-open");
   modal.setAttribute("aria-hidden", "false");
   window.setTimeout(() => modalButton.focus(), 50);
@@ -453,7 +442,7 @@ timeForm.addEventListener("submit", async (event) => {
   timeSubmit.disabled = true;
   timeSubmit.textContent = "Подтверждаем…";
 
-  let resultStage = 5;
+  let resultStage = 4;
   try {
     const response = await sendButtonNotification(currentMode === "delivery" ? "Подтвердить время" : "Подтвердить бронирование", {
       mode: currentMode,
@@ -464,8 +453,7 @@ timeForm.addEventListener("submit", async (event) => {
       bookingDate: currentMode === "jenka" ? bookingDate.value : "",
       address: currentMode === "delivery" ? deliveryAddress.value.trim() : "",
     });
-    if (response.status === 204) resultStage = currentMode === "delivery" ? 3 : 6;
-    else if (response.status === 409) resultStage = 4;
+    if (response.status === 204) resultStage = currentMode === "delivery" ? 3 : 5;
   } catch {}
 
   closeTimeModal();

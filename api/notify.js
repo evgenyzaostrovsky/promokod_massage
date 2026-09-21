@@ -1,5 +1,3 @@
-import { createHash } from "node:crypto";
-
 const ALLOWED_ACTIONS = new Set([
   "Оформить VIP-доставку",
   "Перенести VIP-доставку",
@@ -34,31 +32,6 @@ const ALLOWED_SERVICES = new Set([
   "Психологическая поддержка и забота",
 ]);
 
-function getClientIp(request) {
-  const forwarded = request.headers["x-forwarded-for"] || request.headers["x-real-ip"];
-  const value = Array.isArray(forwarded) ? forwarded[0] : forwarded;
-  return String(value || "").split(",")[0].trim();
-}
-
-async function runRedisCommand(command) {
-  const redisUrl = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
-  const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
-
-  if (!redisUrl || !redisToken) throw new Error("Redis is not configured");
-
-  const redisResponse = await fetch(redisUrl, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${redisToken}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(command),
-  });
-
-  if (!redisResponse.ok) throw new Error("Redis request failed");
-  return redisResponse.json();
-}
-
 export default async function handler(request, response) {
   if (request.method !== "POST") {
     response.setHeader("Allow", "POST");
@@ -67,7 +40,6 @@ export default async function handler(request, response) {
 
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
-  const ipHashSalt = process.env.IP_HASH_SALT;
 
   if (!token || !chatId) {
     return response.status(503).json({ error: "Notifications are not configured" });
@@ -131,25 +103,6 @@ export default async function handler(request, response) {
   const preferencesText = preferences ? `\n\nПредпочтения: ${preferences}` : "";
   const addressText = mode === "delivery" && address ? `\n📍 Адрес: г. Волгоград, ${address}` : "";
 
-  let orderKey = "";
-  if (action === "Подтвердить время" && mode === "delivery") {
-    if (!ipHashSalt) return response.status(503).json({ error: "Order storage is not configured" });
-    const clientIp = getClientIp(request);
-    if (!clientIp) return response.status(503).json({ error: "Unable to identify client" });
-
-    const ipHash = createHash("sha256").update(`${ipHashSalt}:${clientIp}`).digest("hex");
-    orderKey = `${mode}:ip:${ipHash}`;
-
-    try {
-      const reservation = await runRedisCommand(["SET", orderKey, timestamp, "NX"]);
-      if (reservation.result !== "OK") {
-        return response.status(409).json({ error: "already_ordered" });
-      }
-    } catch {
-      return response.status(503).json({ error: "Order storage is unavailable" });
-    }
-  }
-
   const telegramResponse = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -160,7 +113,6 @@ export default async function handler(request, response) {
   });
 
   if (!telegramResponse.ok) {
-    if (orderKey) await runRedisCommand(["DEL", orderKey]).catch(() => {});
     return response.status(502).json({ error: "Telegram notification failed" });
   }
 

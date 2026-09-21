@@ -1,5 +1,3 @@
-import { createHash } from "node:crypto";
-
 const MAX_SIZE = 3 * 1024 * 1024;
 
 function detectImageType(bytes) {
@@ -8,29 +6,6 @@ function detectImageType(bytes) {
   if (bytes.length >= 12 && bytes.toString("ascii", 0, 4) === "RIFF" && bytes.toString("ascii", 8, 12) === "WEBP") return ["image/webp", ".webp"];
   if (bytes.length >= 12 && bytes.toString("ascii", 4, 8) === "ftyp" && /^(heic|heix|hevc|hevx|heif|heis|mif1)/.test(bytes.toString("ascii", 8, 12))) return ["image/heic", ".heic"];
   return null;
-}
-
-async function checkRateLimit(request) {
-  const redisUrl = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
-  const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
-  const ipHashSalt = process.env.IP_HASH_SALT;
-  const forwarded = request.headers["x-forwarded-for"] || request.headers["x-real-ip"];
-  const ip = String(Array.isArray(forwarded) ? forwarded[0] : forwarded || "").split(",")[0].trim();
-  if (!redisUrl || !redisToken || !ipHashSalt || !ip) throw new Error("Rate limit unavailable");
-  const hash = createHash("sha256").update(`${ipHashSalt}:${ip}`).digest("hex");
-  const key = `quest-photo:${new Date().toISOString().slice(0, 10)}:${hash}`;
-  const command = async (parts) => {
-    const result = await fetch(redisUrl, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${redisToken}`, "Content-Type": "application/json" },
-      body: JSON.stringify(parts),
-    });
-    if (!result.ok) throw new Error("Rate limit unavailable");
-    return result.json();
-  };
-  const count = Number((await command(["INCR", key])).result);
-  if (count === 1) await command(["EXPIRE", key, 86400]);
-  return count <= 5;
 }
 
 export default async function handler(request, response) {
@@ -56,12 +31,6 @@ export default async function handler(request, response) {
   const imageType = detectImageType(bytes);
   if (!bytes.length || bytes.length > MAX_SIZE || !imageType) {
     return response.status(400).json({ error: "Unsupported photo" });
-  }
-
-  try {
-    if (!(await checkRateLimit(request))) return response.status(429).json({ error: "Too many uploads" });
-  } catch {
-    return response.status(503).json({ error: "Upload temporarily unavailable" });
   }
 
   const [mimeType, extension] = imageType;
