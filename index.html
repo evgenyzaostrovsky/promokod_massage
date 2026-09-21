@@ -87,6 +87,15 @@
           <input id="questAnswer" type="number" inputmode="numeric" required autocomplete="off" />
           <button class="button button--primary modal__button" type="submit" data-notify="manual">Проверить ответ</button>
         </form>
+        <form class="quest-photo" id="questPhoto" hidden>
+          <label class="quest-photo__picker" for="questPhotoFile">Выбрать фото
+            <input id="questPhotoFile" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" />
+          </label>
+          <p class="quest-photo__note">Фото отправится владельцу сайта в Telegram. Отправляйте только снимок, которым готовы поделиться. До 3 МБ.</p>
+          <p class="quest-photo__error" id="questPhotoError" role="alert" hidden></p>
+          <button class="button button--primary modal__button" id="questPhotoSubmit" type="submit" data-notify="manual">Отправить фото</button>
+          <button class="button button--secondary modal__button" id="questPhotoSkip" type="button" data-notify="manual">Пропустить</button>
+        </form>
         <button class="button button--primary modal__button" id="modalButton" data-notify="manual" type="button">Да</button>
       </section>
     </div>

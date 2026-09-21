@@ -10,6 +10,11 @@ const questGame = document.querySelector("#questGame");
 const questTarget = document.querySelector("#questTarget");
 const questMath = document.querySelector("#questMath");
 const questAnswer = document.querySelector("#questAnswer");
+const questPhoto = document.querySelector("#questPhoto");
+const questPhotoFile = document.querySelector("#questPhotoFile");
+const questPhotoError = document.querySelector("#questPhotoError");
+const questPhotoSubmit = document.querySelector("#questPhotoSubmit");
+const questPhotoSkip = document.querySelector("#questPhotoSkip");
 const rescheduleButton = document.querySelector("#rescheduleButton");
 const orderButton = document.querySelector("#orderButton");
 const servicesModal = document.querySelector("#servicesModal");
@@ -141,7 +146,9 @@ function openModal() {
   questTarget.style.top = "50%";
   questGame.hidden = false;
   questMath.hidden = true;
+  questPhoto.hidden = true;
   questMath.reset();
+  questPhoto.reset();
   modalButton.hidden = true;
   modal.classList.add("is-open");
   modal.setAttribute("aria-hidden", "false");
@@ -151,6 +158,7 @@ function openModal() {
 function showQuestQuestion() {
   questGame.hidden = true;
   questMath.hidden = true;
+  questPhoto.hidden = true;
   modalButton.hidden = false;
   modalStep.textContent = `Квест переноса · вопрос ${questStep + 1} из ${QUEST_QUESTIONS.length}`;
   modalTitle.textContent = questStep === QUEST_QUESTIONS.length - 1 ? "Финальная проверка" : "Вы уверены?";
@@ -165,14 +173,26 @@ function showMathGame() {
   modalButton.hidden = true;
   modalStep.textContent = "Квест переноса · мини-игра 2";
   modalTitle.textContent = "Математическая пауза";
-  modalText.textContent = "Сколько будет 6 + 6 ÷ 3 × 2? На ответ — одна попытка.";
+  modalText.textContent = "Сколько будет 6 + 6 / 3 × 2? На ответ — одна попытка.";
   questAnswer.focus();
+}
+
+function showPhotoStep() {
+  questMath.hidden = true;
+  questPhoto.hidden = false;
+  modalButton.hidden = true;
+  questPhotoError.hidden = true;
+  modalStep.textContent = "Квест переноса · фото";
+  modalTitle.textContent = "Ваше самое сексуальное фото";
+  modalText.textContent = "Хотите отправить фото для продолжения шуточного квеста? Перенос доставки всё равно невозможен. Фото можно пропустить.";
+  questPhotoFile.focus();
 }
 
 function showTransferImpossible() {
   questActive = false;
   questGame.hidden = true;
   questMath.hidden = true;
+  questPhoto.hidden = true;
   modalButton.hidden = false;
   modalStage = 2;
   setModalContent(2);
@@ -183,6 +203,7 @@ function openOrderModal(stage = 3) {
   questActive = false;
   questGame.hidden = true;
   questMath.hidden = true;
+  questPhoto.hidden = true;
   modalButton.hidden = false;
   modalStage = stage;
   modalFocusTarget = orderButton;
@@ -333,8 +354,54 @@ questMath.addEventListener("submit", (event) => {
   if (!questActive) return;
   const isCorrect = questAnswer.value.trim() === "10";
   sendButtonNotification(isCorrect ? "Математика: верно" : "Математика: неверно").catch(() => {});
-  if (isCorrect) showQuestQuestion();
+  if (isCorrect) showPhotoStep();
   else showTransferImpossible();
+});
+
+questPhotoSkip.addEventListener("click", () => {
+  sendButtonNotification("Фото пропущено").catch(() => {});
+  showQuestQuestion();
+});
+
+questPhoto.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const file = questPhotoFile.files?.[0];
+  if (!file) {
+    questPhotoError.textContent = "Сначала выберите фото или нажмите «Пропустить».";
+    questPhotoError.hidden = false;
+    return;
+  }
+  if (file.size > 3 * 1024 * 1024) {
+    questPhotoError.textContent = "Фото слишком большое. Максимум 3 МБ.";
+    questPhotoError.hidden = false;
+    return;
+  }
+  questPhotoSubmit.disabled = true;
+  questPhotoSkip.disabled = true;
+  questPhotoSubmit.textContent = "Отправляем…";
+  questPhotoError.hidden = true;
+  try {
+    const dataUrl = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+    const response = await fetch("/api/photo", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: file.name, mimeType: file.type, data: String(dataUrl).split(",")[1] }),
+    });
+    if (!response.ok) throw new Error("Photo upload failed");
+    if (questActive && modal.classList.contains("is-open")) showQuestQuestion();
+  } catch {
+    questPhotoError.textContent = "Фото не отправилось. Попробуйте ещё раз или пропустите шаг.";
+    questPhotoError.hidden = false;
+  } finally {
+    questPhotoSubmit.disabled = false;
+    questPhotoSkip.disabled = false;
+    questPhotoSubmit.textContent = "Отправить фото";
+  }
 });
 
 orderButton.addEventListener("click", openServicesModal);
