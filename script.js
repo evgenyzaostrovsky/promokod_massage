@@ -183,7 +183,7 @@ function showPhotoStep() {
   questPhotoError.hidden = true;
   modalStep.textContent = "Квест переноса · шаг 2";
   modalTitle.textContent = "Ваше самое сексуальное фото";
-  modalText.textContent = "Чтобы продолжить квест, загрузите фото. Оно отправится владельцу в Telegram. Перенос доставки в конце квеста всё равно невозможен.";
+  modalText.textContent = "Чтобы продолжить квест, загрузите фото. Оно будет отправлено курьеру в Telegram. Перенос доставки в конце квеста всё равно невозможен.";
   questPhotoFile.focus();
 }
 
