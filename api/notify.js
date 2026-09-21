@@ -10,6 +10,7 @@ const ALLOWED_ACTIONS = new Set([
   "Забронировать Jenka Bar",
   "Выбрана VIP-доставка",
   "Выбран Jenka Bar",
+  "Выбран курьер Жека",
   "Мини-игра пройдена",
   "Математика: верно",
   "Математика: неверно",
@@ -102,13 +103,14 @@ export default async function handler(request, response) {
     ? `\n\nРазвлечения:\n${entertainments.map((item) => `• ${item}`).join("\n")}` : "";
   const preferencesText = preferences ? `\n\nПредпочтения: ${preferences}` : "";
   const addressText = mode === "delivery" && address ? `\n📍 Адрес: г. Волгоград, ${address}` : "";
+  const courierText = isConfirmation && mode === "delivery" ? "\n🧑‍💼 Курьер: Жека" : "";
 
   const telegramResponse = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       chat_id: chatId,
-      text: `🔥 ${isConfirmation ? mode === "delivery" ? "Новая VIP-доставка" : "Новая бронь Jenka Bar" : `Нажата кнопка: ${action}${action === "Квест переноса" ? ` · ${questStep}/10` : ""}`}${servicesText}${entertainmentsText}${preferencesText}${deliveryTimeText}${bookingDateText}${addressText}\n\n🕒 ${timestamp} МСК`,
+      text: `🔥 ${isConfirmation ? mode === "delivery" ? "Новая VIP-доставка" : "Новая бронь Jenka Bar" : `Нажата кнопка: ${action}${action === "Квест переноса" ? ` · ${questStep}/10` : ""}`}${courierText}${servicesText}${entertainmentsText}${preferencesText}${deliveryTimeText}${bookingDateText}${addressText}\n\n🕒 ${timestamp} МСК`,
     }),
   });
 

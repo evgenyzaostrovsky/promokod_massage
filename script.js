@@ -19,6 +19,9 @@ const questPhotoError = document.querySelector("#questPhotoError");
 const questPhotoSubmit = document.querySelector("#questPhotoSubmit");
 const rescheduleButton = document.querySelector("#rescheduleButton");
 const orderButton = document.querySelector("#orderButton");
+const courierModal = document.querySelector("#courierModal");
+const courierSelect = document.querySelector("#courierSelect");
+const courierBack = document.querySelector("#courierBack");
 const servicesModal = document.querySelector("#servicesModal");
 const servicesClose = document.querySelector("#servicesClose");
 const servicesForm = document.querySelector("#servicesForm");
@@ -284,6 +287,20 @@ function openServicesModal() {
   window.setTimeout(() => servicesClose.focus(), 50);
 }
 
+function openCourierModal() {
+  courierModal.classList.add("is-open");
+  courierModal.setAttribute("aria-hidden", "false");
+  document.body.classList.add("has-modal");
+  window.setTimeout(() => courierSelect.focus(), 50);
+}
+
+function closeCourierModal() {
+  courierModal.classList.remove("is-open");
+  courierModal.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("has-modal");
+  orderButton.focus();
+}
+
 function closeServicesModal() {
   servicesModal.classList.remove("is-open");
   servicesModal.setAttribute("aria-hidden", "true");
@@ -412,7 +429,17 @@ questPhoto.addEventListener("submit", async (event) => {
   }
 });
 
-orderButton.addEventListener("click", openServicesModal);
+orderButton.addEventListener("click", () => {
+  if (currentMode === "delivery") openCourierModal();
+  else openServicesModal();
+});
+courierSelect.addEventListener("click", () => {
+  sendButtonNotification("Выбран курьер Жека").catch(() => {});
+  closeCourierModal();
+  openServicesModal();
+});
+courierBack.addEventListener("click", closeCourierModal);
+courierModal.querySelector(".modal__backdrop").addEventListener("click", closeCourierModal);
 servicesClose.addEventListener("click", closeServicesModal);
 servicesModal.querySelector(".services-modal__backdrop").addEventListener("click", closeServicesModal);
 serviceInputs.forEach((input) => input.addEventListener("change", updateServicesState));
@@ -476,6 +503,7 @@ document.addEventListener("keydown", (event) => {
   if (event.key !== "Escape") return;
   if (servicesModal.classList.contains("is-open")) closeServicesModal();
   else if (timeModal.classList.contains("is-open")) closeTimeModal();
+  else if (courierModal.classList.contains("is-open")) closeCourierModal();
   else if (modal.classList.contains("is-open")) closeModal();
 });
 

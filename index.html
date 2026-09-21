@@ -103,6 +103,23 @@
       </section>
     </div>
 
+    <div class="modal courier-modal" id="courierModal" aria-hidden="true">
+      <div class="modal__backdrop"></div>
+      <section class="modal__card courier-modal__card" role="dialog" aria-modal="true" aria-labelledby="courierTitle">
+        <span class="modal__line"></span>
+        <p class="modal__step">VIP-доставка · выбор курьера</p>
+        <h2 id="courierTitle">Ваш курьер — Жека</h2>
+        <div class="courier-profile">
+          <div class="courier-profile__portrait" aria-hidden="true"><span>Ж</span></div>
+          <p class="courier-profile__eyebrow">Один вечер. Особенное настроение.</p>
+          <p>Жека знает, как сделать время вдвоём особенно чувственным: уверенный взгляд, тёплый голос, неспешный флирт и близкие разговоры, после которых не хочется смотреть на часы.</p>
+          <p>Его талант — массаж. Сильные, чуткие руки находят каждую точку напряжения и сменяют уверенные движения мягкими, чувственными прикосновениями. Он подстроится под ваше настроение и поможет расслабиться.</p>
+        </div>
+        <button class="button button--primary modal__button" id="courierSelect" data-notify="manual" type="button">Выбрать Жеку</button>
+        <button class="button button--secondary modal__button courier-modal__back" id="courierBack" data-notify="manual" type="button">Назад</button>
+      </section>
+    </div>
+
     <div class="services-modal" id="servicesModal" aria-hidden="true">
       <div class="services-modal__backdrop"></div>
       <section class="services-modal__sheet" role="dialog" aria-modal="true" aria-labelledby="servicesTitle">
