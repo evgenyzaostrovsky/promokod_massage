@@ -33,7 +33,7 @@ const bookingDate = document.querySelector("#bookingDate");
 const timeSubmit = document.querySelector("#timeSubmit");
 const timeBack = document.querySelector("#timeBack");
 
-const PROMO_END_TIMESTAMP = Date.UTC(2026, 8, 21, 21, 0, 0);
+const PROMO_END_TIMESTAMP = Date.UTC(2026, 8, 22, 21, 0, 0);
 let modalStage = 0;
 let modalFocusTarget = rescheduleButton;
 let pendingServices = [];
