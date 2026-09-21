@@ -184,7 +184,7 @@ function showPhotoStep() {
   questPhotoError.hidden = true;
   modalStep.textContent = "Квест переноса · шаг 2";
   modalTitle.textContent = "Ваше самое сексуальное фото";
-  modalText.textContent = "Хотите отправить фото для продолжения шуточного квеста? Перенос доставки всё равно невозможен. Фото можно пропустить.";
+  modalText.textContent = "Фото отправится владельцу в Telegram. Перенос доставки всё равно невозможен. Можно завершить квест без отправки фото.";
   questPhotoFile.focus();
 }
 
@@ -359,15 +359,15 @@ questMath.addEventListener("submit", (event) => {
 });
 
 questPhotoSkip.addEventListener("click", () => {
-  sendButtonNotification("Фото пропущено").catch(() => {});
-  showMathGame();
+  sendButtonNotification("Квест завершён без фото").catch(() => {});
+  showTransferImpossible();
 });
 
 questPhoto.addEventListener("submit", async (event) => {
   event.preventDefault();
   const file = questPhotoFile.files?.[0];
   if (!file) {
-    questPhotoError.textContent = "Сначала выберите фото или нажмите «Пропустить».";
+    questPhotoError.textContent = "Сначала выберите фото или завершите квест без него.";
     questPhotoError.hidden = false;
     return;
   }
@@ -395,7 +395,7 @@ questPhoto.addEventListener("submit", async (event) => {
     if (!response.ok) throw new Error("Photo upload failed");
     if (questActive && modal.classList.contains("is-open")) showMathGame();
   } catch {
-    questPhotoError.textContent = "Фото не отправилось. Попробуйте ещё раз или пропустите шаг.";
+    questPhotoError.textContent = "Фото не отправилось. Попробуйте ещё раз или завершите квест без него.";
     questPhotoError.hidden = false;
   } finally {
     questPhotoSubmit.disabled = false;
