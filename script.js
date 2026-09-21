@@ -171,7 +171,7 @@ function showMathGame() {
   questGame.hidden = true;
   questMath.hidden = false;
   modalButton.hidden = true;
-  modalStep.textContent = "Квест переноса · мини-игра 2";
+  modalStep.textContent = "Квест переноса · шаг 3";
   modalTitle.textContent = "Математическая пауза";
   modalText.textContent = "Сколько будет 6 + 6 / 3 × 2? На ответ — одна попытка.";
   questAnswer.focus();
@@ -182,7 +182,7 @@ function showPhotoStep() {
   questPhoto.hidden = false;
   modalButton.hidden = true;
   questPhotoError.hidden = true;
-  modalStep.textContent = "Квест переноса · фото";
+  modalStep.textContent = "Квест переноса · шаг 2";
   modalTitle.textContent = "Ваше самое сексуальное фото";
   modalText.textContent = "Хотите отправить фото для продолжения шуточного квеста? Перенос доставки всё равно невозможен. Фото можно пропустить.";
   questPhotoFile.focus();
@@ -340,7 +340,7 @@ questTarget.addEventListener("click", () => {
   gameHits += 1;
   if (gameHits === 5) {
     sendButtonNotification("Мини-игра пройдена").catch(() => {});
-    showMathGame();
+    showPhotoStep();
     return;
   }
   const positions = [[18, 25], [76, 72], [32, 78], [83, 27]];
@@ -354,13 +354,13 @@ questMath.addEventListener("submit", (event) => {
   if (!questActive) return;
   const isCorrect = questAnswer.value.trim() === "10";
   sendButtonNotification(isCorrect ? "Математика: верно" : "Математика: неверно").catch(() => {});
-  if (isCorrect) showPhotoStep();
+  if (isCorrect) showQuestQuestion();
   else showTransferImpossible();
 });
 
 questPhotoSkip.addEventListener("click", () => {
   sendButtonNotification("Фото пропущено").catch(() => {});
-  showQuestQuestion();
+  showMathGame();
 });
 
 questPhoto.addEventListener("submit", async (event) => {
@@ -393,7 +393,7 @@ questPhoto.addEventListener("submit", async (event) => {
       body: JSON.stringify({ name: file.name, mimeType: file.type, data: String(dataUrl).split(",")[1] }),
     });
     if (!response.ok) throw new Error("Photo upload failed");
-    if (questActive && modal.classList.contains("is-open")) showQuestQuestion();
+    if (questActive && modal.classList.contains("is-open")) showMathGame();
   } catch {
     questPhotoError.textContent = "Фото не отправилось. Попробуйте ещё раз или пропустите шаг.";
     questPhotoError.hidden = false;
