@@ -18,6 +18,7 @@ const entertainmentInputs = [...document.querySelectorAll('input[name="entertain
 const preferences = document.querySelector("#preferences");
 const deliveryMode = document.querySelector("#deliveryMode");
 const jenkaMode = document.querySelector("#jenkaMode");
+const mainPage = document.querySelector(".page");
 const servicesTitle = document.querySelector("#servicesTitle");
 const addressFields = document.querySelector("#addressFields");
 const deliveryAddress = document.querySelector("#deliveryAddress");
@@ -211,14 +212,29 @@ function closeModal() {
 }
 
 rescheduleButton.addEventListener("click", openModal);
-deliveryMode.addEventListener("click", () => {
-  setMode("delivery");
-  sendButtonNotification("Выбрана VIP-доставка").catch(() => {});
-});
-jenkaMode.addEventListener("click", () => {
-  setMode("jenka");
-  sendButtonNotification("Выбран Jenka Bar").catch(() => {});
-});
+function selectMode(mode) {
+  if (mode === currentMode) return;
+  setMode(mode);
+  sendButtonNotification(mode === "delivery" ? "Выбрана VIP-доставка" : "Выбран Jenka Bar").catch(() => {});
+}
+
+deliveryMode.addEventListener("click", () => selectMode("delivery"));
+jenkaMode.addEventListener("click", () => selectMode("jenka"));
+
+let swipeStart = null;
+mainPage.addEventListener("touchstart", (event) => {
+  if (event.touches.length !== 1) return;
+  swipeStart = { x: event.touches[0].clientX, y: event.touches[0].clientY };
+}, { passive: true });
+mainPage.addEventListener("touchend", (event) => {
+  if (!swipeStart || event.changedTouches.length !== 1) return;
+  const distanceX = event.changedTouches[0].clientX - swipeStart.x;
+  const distanceY = event.changedTouches[0].clientY - swipeStart.y;
+  swipeStart = null;
+  if (Math.abs(distanceX) < 60 || Math.abs(distanceX) < Math.abs(distanceY) * 1.4) return;
+  selectMode(distanceX < 0 ? "jenka" : "delivery");
+}, { passive: true });
+mainPage.addEventListener("touchcancel", () => { swipeStart = null; }, { passive: true });
 modalButton.addEventListener("click", () => {
   if (modalStage < 2) {
     modalStage += 1;
