@@ -1,6 +1,7 @@
 const hoursNode = document.querySelector("#hours");
 const minutesNode = document.querySelector("#minutes");
 const secondsNode = document.querySelector("#seconds");
+const promoDateNode = document.querySelector("#promoDate");
 const modal = document.querySelector("#modal");
 const modalStep = document.querySelector("#modalStep");
 const modalTitle = document.querySelector("#modalTitle");
@@ -44,7 +45,15 @@ const bookingDate = document.querySelector("#bookingDate");
 const timeSubmit = document.querySelector("#timeSubmit");
 const timeBack = document.querySelector("#timeBack");
 
-const PROMO_END_TIMESTAMP = Date.UTC(2026, 8, 22, 21, 0, 0);
+const moscowClock = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "Europe/Moscow",
+  day: "2-digit",
+  month: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hourCycle: "h23",
+});
 let modalStage = 0;
 let modalFocusTarget = rescheduleButton;
 let pendingServices = [];
@@ -77,8 +86,9 @@ function sendButtonNotification(action, details = {}) {
 }
 
 function updateTimer() {
-  const remaining = Math.max(0, PROMO_END_TIMESTAMP - Date.now());
-  const totalSeconds = Math.floor(remaining / 1000);
+  const parts = Object.fromEntries(moscowClock.formatToParts(new Date()).map(({ type, value }) => [type, value]));
+  const elapsedSeconds = Number(parts.hour) * 3600 + Number(parts.minute) * 60 + Number(parts.second);
+  const totalSeconds = 86400 - elapsedSeconds;
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
@@ -86,6 +96,7 @@ function updateTimer() {
   hoursNode.textContent = String(hours).padStart(2, "0");
   minutesNode.textContent = String(minutes).padStart(2, "0");
   secondsNode.textContent = String(seconds).padStart(2, "0");
+  promoDateNode.textContent = `${parts.day}.${parts.month}`;
 }
 
 function setModalContent(stage) {
