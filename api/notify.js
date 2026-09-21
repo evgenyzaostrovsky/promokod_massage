@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 const ALLOWED_ACTIONS = new Set([
   "Оформить VIP-доставку",
   "Перенести VIP-доставку",
@@ -6,6 +8,14 @@ const ALLOWED_ACTIONS = new Set([
   "Хорошо",
   "Оформить выбранное",
   "Подтвердить время",
+  "Забронировать Jenka Bar",
+  "Выбрана VIP-доставка",
+  "Выбран Jenka Bar",
+]);
+const ALLOWED_ENTERTAINMENTS = new Set([
+  "Море", "Душевные разговоры у костра", "Музыка", "Мангальная зона", "Кальян",
+  "Алкоголь (вино, ром, пиво)", "Отопление", "Теплая одежда в стиле бомж-стайл",
+  "Спальное место", "Приятное продолжение вечера",
 ]);
 
 const ALLOWED_SERVICES = new Set([
@@ -71,12 +81,22 @@ export default async function handler(request, response) {
       )
     : [];
   const deliveryTime = String(body?.deliveryTime || "").trim();
+  const mode = body?.mode === "jenka" ? "jenka" : "delivery";
+  const entertainments = Array.isArray(body?.entertainments)
+    ? [...new Set(body.entertainments.map((item) => String(item).trim()))].filter((item) => ALLOWED_ENTERTAINMENTS.has(item))
+    : [];
+  const preferences = String(body?.preferences || "").trim().slice(0, 500);
+  const address = String(body?.address || "").trim().slice(0, 200);
 
   if (!ALLOWED_ACTIONS.has(action)) {
     return response.status(400).json({ error: "Unknown action" });
   }
 
-  if (action === "Подтвердить время" && (!services.length || !/^([01]\d|2[0-3]):[0-5]\d$/.test(deliveryTime))) {
+  if (action === "Подтвердить время" && (
+    !(mode === "delivery" ? services.length : entertainments.length) && !preferences ||
+    !/^([01]\d|2[0-3]):[0-5]\d$/.test(deliveryTime) ||
+    (mode === "delivery" && (!address || /[\r\n]/.test(address)))
+  )) {
     return response.status(400).json({ error: "Invalid order details" });
   }
 
@@ -89,16 +109,20 @@ export default async function handler(request, response) {
   const servicesText = services.length
     ? `\n\nВыбранные услуги:\n${services.map((service) => `• ${service}`).join("\n")}`
     : "";
-  const deliveryTimeText = deliveryTime ? `\n🛵 Время приезда: ${deliveryTime}` : "";
+  const deliveryTimeText = deliveryTime ? `\n${mode === "jenka" ? "🏡 Время бронирования" : "🛵 Время приезда"}: ${deliveryTime}` : "";
+  const entertainmentsText = entertainments.length
+    ? `\n\nРазвлечения:\n${entertainments.map((item) => `• ${item}`).join("\n")}` : "";
+  const preferencesText = preferences ? `\n\nПредпочтения: ${preferences}` : "";
+  const addressText = mode === "delivery" && address ? `\n📍 Адрес: г. Волгоград, ${address}` : "";
 
   let orderKey = "";
-  if (action === "Подтвердить время") {
+  if (action === "Подтвердить время" && mode === "delivery") {
     if (!ipHashSalt) return response.status(503).json({ error: "Order storage is not configured" });
     const clientIp = getClientIp(request);
     if (!clientIp) return response.status(503).json({ error: "Unable to identify client" });
 
     const ipHash = createHash("sha256").update(`${ipHashSalt}:${clientIp}`).digest("hex");
-    orderKey = `delivery:ip:${ipHash}`;
+    orderKey = `${mode}:ip:${ipHash}`;
 
     try {
       const reservation = await runRedisCommand(["SET", orderKey, timestamp, "NX"]);
@@ -115,7 +139,7 @@ export default async function handler(request, response) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       chat_id: chatId,
-      text: `🔥 Нажата кнопка: ${action}${servicesText}${deliveryTimeText}\n\n🕒 ${timestamp} МСК`,
+      text: `🔥 ${action === "Подтвердить время" ? mode === "delivery" ? "Новая VIP-доставка" : "Новая бронь Jenka Bar" : `Нажата кнопка: ${action}`}${servicesText}${entertainmentsText}${preferencesText}${deliveryTimeText}${addressText}\n\n🕒 ${timestamp} МСК`,
     }),
   });
 
@@ -126,4 +150,3 @@ export default async function handler(request, response) {
 
   return response.status(204).end();
 }
-import { createHash } from "node:crypto";

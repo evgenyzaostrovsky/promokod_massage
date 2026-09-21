@@ -39,6 +39,10 @@
           <img class="brand__icon" src="assets/pepper-white.png" alt="" width="50" height="50" />
           <h1>Малышка's <em>Delivery</em></h1>
         </header>
+        <div class="mode-switch" role="group" aria-label="Что хотите оформить">
+          <button id="deliveryMode" class="mode-switch__button is-active" type="button" aria-pressed="true" data-notify="manual">VIP-доставка</button>
+          <button id="jenkaMode" class="mode-switch__button" type="button" aria-pressed="false" data-notify="manual">Jenka Bar</button>
+        </div>
         <p class="eyebrow">Ваш персональный промокод</p>
         <h2 class="promo-title">Срок действия<br />промокода</h2>
 
@@ -90,7 +94,7 @@
         </header>
 
         <form id="servicesForm">
-          <fieldset class="services-group">
+          <fieldset class="services-group" data-mode="delivery">
             <legend>Виды массажа</legend>
 
             <label class="service-card">
@@ -112,7 +116,7 @@
             </label>
           </fieldset>
 
-          <fieldset class="services-group">
+          <fieldset class="services-group" data-mode="delivery">
             <legend>Горячие удовольствия</legend>
 
             <label class="service-card">
@@ -146,6 +150,32 @@
             </label>
           </fieldset>
 
+          <fieldset class="services-group" data-mode="jenka" hidden>
+            <legend>🌅 Природа и атмосфера</legend>
+            <label class="service-card"><input type="checkbox" name="entertainment" value="Море" /><span class="service-card__check"></span><span><strong>Море</strong><small>Бесконечный горизонт для ваших мыслей. Место, где шум прибоя смывает городскую суету, а вечерний прилив приносит ответы на вопросы, которые вы еще даже не успели задать.</small></span></label>
+            <label class="service-card"><input type="checkbox" name="entertainment" value="Душевные разговоры у костра" /><span class="service-card__check"></span><span><strong>Душевные разговоры у костра</strong><small>Магия открытого огня, где искры взлетают к звездам вместе с вашими сокровенными секретами. Время, когда спадают маски, рождается искренний смех и стираются любые границы между людьми.</small></span></label>
+            <label class="service-card"><input type="checkbox" name="entertainment" value="Музыка" /><span class="service-card__check"></span><span><strong>Музыка</strong><small>Саундтрек вашего идеального побега от реальности. Мелодии, которые тонко угадывают настроение, создают правильный вайб и уютно заполняют паузы между разговорами.</small></span></label>
+          </fieldset>
+          <fieldset class="services-group" data-mode="jenka" hidden>
+            <legend>🍢 Вкус и расслабление</legend>
+            <label class="service-card"><input type="checkbox" name="entertainment" value="Мангальная зона" /><span class="service-card__check"></span><span><strong>Мангальная зона</strong><small>Древний ритуал огня, дыма и гастрономического удовольствия. Здесь рождаются не просто сочные шедевры на углях, а те самые истории, которые потом вспоминают годами.</small></span></label>
+            <label class="service-card"><input type="checkbox" name="entertainment" value="Кальян" /><span class="service-card__check"></span><span><strong>Кальян</strong><small>Густой дым, неспешные мысли и атмосфера абсолютного релакса. Время замедлит свой ход, позволяя вам раствориться в моменте и мягком аромате легкой тайны.</small></span></label>
+            <label class="service-card"><input type="checkbox" name="entertainment" value="Алкоголь (вино, ром, пиво)" /><span class="service-card__check"></span><span><strong>Алкоголь (вино, ром, пиво)</strong><small>Наш жидкий компас для хорошего настроения. Изысканное вино для долгих откровений, дерзкий ром для духа приключений или холодное пиво для легкости бытия — выберите свое топливо для этого вечера.</small></span></label>
+          </fieldset>
+          <fieldset class="services-group" data-mode="jenka" hidden>
+            <legend>🏡 Комфорт и тепло</legend>
+            <label class="service-card"><input type="checkbox" name="entertainment" value="Отопление" /><span class="service-card__check"></span><span><strong>Отопление</strong><small>Мягкое тепло, которое обнимает прямо с порога. Что бы ни происходило за окном — шторм, ветер или прохлада — внутри вас всегда ждет согревающий уют.</small></span></label>
+            <label class="service-card"><input type="checkbox" name="entertainment" value="Теплая одежда в стиле бомж-стайл" /><span class="service-card__check"></span><span><strong>Теплая одежда в стиле бомж-стайл</strong><small>Легендарный оверсайз, где комфорт навсегда победил пафос. Огромные уютные куртки и безразмерные свитера, которые сделают вас «своим» для костра и звездного неба. Стиль без правил, главная цель которого — чтобы вам было тепло.</small></span></label>
+            <label class="service-card"><input type="checkbox" name="entertainment" value="Спальное место" /><span class="service-card__check"></span><span><strong>Спальное место</strong><small>Уютное убежище, где сны становятся ярче. Мы приготовили постель, из которой совершенно не захочется выбираться утром, и оставили достаточно места для ваших самых сладких фантазий.</small></span></label>
+          </fieldset>
+          <fieldset class="services-group" data-mode="jenka" hidden>
+            <legend>✨ Главная интрига</legend>
+            <label class="service-card"><input type="checkbox" name="entertainment" value="Приятное продолжение вечера" /><span class="service-card__check"></span><span><strong>Приятное продолжение вечера</strong><small>Тот самый момент, когда официальный сценарий заканчивается и пишется новая история. Мы создали идеальные декорации, а вот как именно завершится эта ночь — останется строгим секретом между вами и этой дачей.</small></span></label>
+          </fieldset>
+          <label class="preferences-field" for="preferences">Или введите свои предпочтения
+            <textarea id="preferences" name="preferences" maxlength="500" rows="3" placeholder="Расскажите, что вам хочется…"></textarea>
+          </label>
+
           <div class="services-modal__footer">
             <p id="servicesHint">Выберите хотя бы одну услугу</p>
             <button class="button button--primary" id="servicesSubmit" data-notify="manual" type="submit" disabled>Оформить выбранное</button>
@@ -165,6 +195,10 @@
             <span>Выберите время</span>
             <input id="arrivalTime" type="time" name="arrivalTime" required />
           </label>
+          <div id="addressFields">
+            <p class="address-city">Адрес доставки · г. Волгоград</p>
+            <label class="time-field address-field"><span>Улица, дом, квартира</span><input id="deliveryAddress" type="text" name="deliveryAddress" autocomplete="street-address" maxlength="200" placeholder="Например, ул. Мира, 12, кв. 3" required /></label>
+          </div>
           <div class="time-modal__actions">
             <button class="button button--primary modal__button" id="timeSubmit" data-notify="manual" type="submit" disabled>Подтвердить</button>
             <button class="button button--secondary modal__button" id="timeBack" data-notify="manual" type="button">Назад к услугам</button>
