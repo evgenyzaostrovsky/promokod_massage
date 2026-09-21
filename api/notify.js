@@ -15,7 +15,6 @@ const ALLOWED_ACTIONS = new Set([
   "Мини-игра пройдена",
   "Математика: верно",
   "Математика: неверно",
-  "Квест завершён без фото",
   "Квест переноса",
 ]);
 const ALLOWED_ENTERTAINMENTS = new Set([

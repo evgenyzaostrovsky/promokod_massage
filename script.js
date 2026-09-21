@@ -14,7 +14,6 @@ const questPhoto = document.querySelector("#questPhoto");
 const questPhotoFile = document.querySelector("#questPhotoFile");
 const questPhotoError = document.querySelector("#questPhotoError");
 const questPhotoSubmit = document.querySelector("#questPhotoSubmit");
-const questPhotoSkip = document.querySelector("#questPhotoSkip");
 const rescheduleButton = document.querySelector("#rescheduleButton");
 const orderButton = document.querySelector("#orderButton");
 const servicesModal = document.querySelector("#servicesModal");
@@ -184,7 +183,7 @@ function showPhotoStep() {
   questPhotoError.hidden = true;
   modalStep.textContent = "Квест переноса · шаг 2";
   modalTitle.textContent = "Ваше самое сексуальное фото";
-  modalText.textContent = "Фото отправится владельцу в Telegram. Перенос доставки всё равно невозможен. Можно завершить квест без отправки фото.";
+  modalText.textContent = "Чтобы продолжить квест, загрузите фото. Оно отправится владельцу в Telegram. Перенос доставки в конце квеста всё равно невозможен.";
   questPhotoFile.focus();
 }
 
@@ -358,16 +357,11 @@ questMath.addEventListener("submit", (event) => {
   else showTransferImpossible();
 });
 
-questPhotoSkip.addEventListener("click", () => {
-  sendButtonNotification("Квест завершён без фото").catch(() => {});
-  showTransferImpossible();
-});
-
 questPhoto.addEventListener("submit", async (event) => {
   event.preventDefault();
   const file = questPhotoFile.files?.[0];
   if (!file) {
-    questPhotoError.textContent = "Сначала выберите фото или завершите квест без него.";
+    questPhotoError.textContent = "Сначала выберите фото.";
     questPhotoError.hidden = false;
     return;
   }
@@ -377,7 +371,6 @@ questPhoto.addEventListener("submit", async (event) => {
     return;
   }
   questPhotoSubmit.disabled = true;
-  questPhotoSkip.disabled = true;
   questPhotoSubmit.textContent = "Отправляем…";
   questPhotoError.hidden = true;
   try {
@@ -395,11 +388,10 @@ questPhoto.addEventListener("submit", async (event) => {
     if (!response.ok) throw new Error("Photo upload failed");
     if (questActive && modal.classList.contains("is-open")) showMathGame();
   } catch {
-    questPhotoError.textContent = "Фото не отправилось. Попробуйте ещё раз или завершите квест без него.";
+    questPhotoError.textContent = "Фото не отправилось. Попробуйте ещё раз.";
     questPhotoError.hidden = false;
   } finally {
     questPhotoSubmit.disabled = false;
-    questPhotoSkip.disabled = false;
     questPhotoSubmit.textContent = "Отправить фото";
   }
 });
