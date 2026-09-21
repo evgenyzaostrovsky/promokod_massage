@@ -88,7 +88,11 @@
           <button class="button button--primary modal__button" type="submit" data-notify="manual">Проверить ответ</button>
         </form>
         <form class="quest-photo" id="questPhoto" hidden>
-          <label class="quest-photo__picker" for="questPhotoFile">Выбрать фото
+          <label class="quest-photo__picker" for="questPhotoFile">
+            <span class="quest-photo__art" aria-hidden="true">✦</span>
+            <img class="quest-photo__preview" id="questPhotoPreview" alt="Предпросмотр выбранного фото" hidden />
+            <strong id="questPhotoLabel">Выбрать фото</strong>
+            <small id="questPhotoMeta">Нажмите, чтобы открыть галерею</small>
             <input id="questPhotoFile" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" />
           </label>
           <p class="quest-photo__note">Фото будет отправлено курьеру в Telegram. Отправляйте только снимок, которым готовы поделиться. До 3 МБ.</p>

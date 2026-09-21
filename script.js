@@ -12,6 +12,9 @@ const questMath = document.querySelector("#questMath");
 const questAnswer = document.querySelector("#questAnswer");
 const questPhoto = document.querySelector("#questPhoto");
 const questPhotoFile = document.querySelector("#questPhotoFile");
+const questPhotoPreview = document.querySelector("#questPhotoPreview");
+const questPhotoLabel = document.querySelector("#questPhotoLabel");
+const questPhotoMeta = document.querySelector("#questPhotoMeta");
 const questPhotoError = document.querySelector("#questPhotoError");
 const questPhotoSubmit = document.querySelector("#questPhotoSubmit");
 const rescheduleButton = document.querySelector("#rescheduleButton");
@@ -47,6 +50,7 @@ let pendingPreferences = "";
 let questActive = false;
 let questStep = 0;
 let gameHits = 0;
+let photoPreviewUrl = "";
 const QUEST_QUESTIONS = [
   "Вы точно хотите перенести VIP-доставку?",
   "Даже если курьер уже морально собрался в путь?",
@@ -148,6 +152,12 @@ function openModal() {
   questPhoto.hidden = true;
   questMath.reset();
   questPhoto.reset();
+  if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl);
+  photoPreviewUrl = "";
+  questPhotoPreview.removeAttribute("src");
+  questPhotoPreview.hidden = true;
+  questPhotoLabel.textContent = "Выбрать фото";
+  questPhotoMeta.textContent = "Нажмите, чтобы открыть галерею";
   modalButton.hidden = true;
   modal.classList.add("is-open");
   modal.setAttribute("aria-hidden", "false");
@@ -177,6 +187,7 @@ function showMathGame() {
 }
 
 function showPhotoStep() {
+  questGame.hidden = true;
   questMath.hidden = true;
   questPhoto.hidden = false;
   modalButton.hidden = true;
@@ -186,6 +197,22 @@ function showPhotoStep() {
   modalText.textContent = "Чтобы продолжить квест, загрузите фото. Оно будет отправлено курьеру в Telegram. Перенос доставки в конце квеста всё равно невозможен.";
   questPhotoFile.focus();
 }
+
+questPhotoFile.addEventListener("change", () => {
+  if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl);
+  photoPreviewUrl = "";
+  const file = questPhotoFile.files?.[0];
+  questPhotoPreview.hidden = true;
+  questPhotoLabel.textContent = file ? "Фото выбрано" : "Выбрать фото";
+  questPhotoMeta.textContent = file ? file.name : "Нажмите, чтобы открыть галерею";
+  questPhotoError.hidden = true;
+  if (file && file.type !== "image/heic" && file.type !== "image/heif") {
+    photoPreviewUrl = URL.createObjectURL(file);
+    questPhotoPreview.src = photoPreviewUrl;
+    questPhotoPreview.hidden = false;
+  }
+});
+questPhotoPreview.addEventListener("error", () => { questPhotoPreview.hidden = true; });
 
 function showTransferImpossible() {
   questActive = false;
