@@ -8,7 +8,8 @@ const modalText = document.querySelector("#modalText");
 const modalButton = document.querySelector("#modalButton");
 const questGame = document.querySelector("#questGame");
 const questTarget = document.querySelector("#questTarget");
-const questCounter = document.querySelector("#questCounter");
+const questMath = document.querySelector("#questMath");
+const questAnswer = document.querySelector("#questAnswer");
 const rescheduleButton = document.querySelector("#rescheduleButton");
 const orderButton = document.querySelector("#orderButton");
 const servicesModal = document.querySelector("#servicesModal");
@@ -135,11 +136,12 @@ function openModal() {
   modalFocusTarget = rescheduleButton;
   modalStep.textContent = "Квест переноса · мини-игра";
   modalTitle.textContent = "Поймайте перенос";
-  modalText.textContent = "Для начала нажмите на убегающую кнопку 5 раз.";
-  questCounter.textContent = "Поймайте кнопку: 0/5";
+  modalText.textContent = "Для начала поймайте убегающую кнопку.";
   questTarget.style.left = "50%";
   questTarget.style.top = "50%";
   questGame.hidden = false;
+  questMath.hidden = true;
+  questMath.reset();
   modalButton.hidden = true;
   modal.classList.add("is-open");
   modal.setAttribute("aria-hidden", "false");
@@ -148,6 +150,7 @@ function openModal() {
 
 function showQuestQuestion() {
   questGame.hidden = true;
+  questMath.hidden = true;
   modalButton.hidden = false;
   modalStep.textContent = `Квест переноса · вопрос ${questStep + 1} из ${QUEST_QUESTIONS.length}`;
   modalTitle.textContent = questStep === QUEST_QUESTIONS.length - 1 ? "Финальная проверка" : "Вы уверены?";
@@ -156,9 +159,30 @@ function showQuestQuestion() {
   modalButton.focus();
 }
 
+function showMathGame() {
+  questGame.hidden = true;
+  questMath.hidden = false;
+  modalButton.hidden = true;
+  modalStep.textContent = "Квест переноса · мини-игра 2";
+  modalTitle.textContent = "Математическая пауза";
+  modalText.textContent = "Сколько будет 6 + 6 ÷ 3 × 2? На ответ — одна попытка.";
+  questAnswer.focus();
+}
+
+function showTransferImpossible() {
+  questActive = false;
+  questGame.hidden = true;
+  questMath.hidden = true;
+  modalButton.hidden = false;
+  modalStage = 2;
+  setModalContent(2);
+  modalButton.focus();
+}
+
 function openOrderModal(stage = 3) {
   questActive = false;
   questGame.hidden = true;
+  questMath.hidden = true;
   modalButton.hidden = false;
   modalStage = stage;
   modalFocusTarget = orderButton;
@@ -283,9 +307,7 @@ modalButton.addEventListener("click", () => {
     if (questStep < QUEST_QUESTIONS.length) {
       showQuestQuestion();
     } else {
-      questActive = false;
-      modalStage = 2;
-      setModalContent(2);
+      showTransferImpossible();
     }
     return;
   }
@@ -295,16 +317,24 @@ modalButton.addEventListener("click", () => {
 
 questTarget.addEventListener("click", () => {
   gameHits += 1;
-  questCounter.textContent = `Поймайте кнопку: ${gameHits}/5`;
   if (gameHits === 5) {
     sendButtonNotification("Мини-игра пройдена").catch(() => {});
-    showQuestQuestion();
+    showMathGame();
     return;
   }
   const positions = [[18, 25], [76, 72], [32, 78], [83, 27]];
   const [x, y] = positions[gameHits - 1];
   questTarget.style.left = `${x}%`;
   questTarget.style.top = `${y}%`;
+});
+
+questMath.addEventListener("submit", (event) => {
+  event.preventDefault();
+  if (!questActive) return;
+  const isCorrect = questAnswer.value.trim() === "10";
+  sendButtonNotification(isCorrect ? "Математика: верно" : "Математика: неверно").catch(() => {});
+  if (isCorrect) showQuestQuestion();
+  else showTransferImpossible();
 });
 
 orderButton.addEventListener("click", openServicesModal);

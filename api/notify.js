@@ -13,6 +13,8 @@ const ALLOWED_ACTIONS = new Set([
   "Выбрана VIP-доставка",
   "Выбран Jenka Bar",
   "Мини-игра пройдена",
+  "Математика: верно",
+  "Математика: неверно",
   "Квест переноса",
 ]);
 const ALLOWED_ENTERTAINMENTS = new Set([

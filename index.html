@@ -80,9 +80,13 @@
         <h2 id="modalTitle">Вы уверены?</h2>
         <p class="modal__text" id="modalText">Перенести VIP-доставку на другую дату?</p>
         <div class="quest-game" id="questGame" hidden>
-          <p class="quest-game__counter" id="questCounter">Поймайте кнопку: 0/5</p>
           <div class="quest-game__field"><button id="questTarget" type="button" data-notify="manual" aria-label="Поймать кнопку переноса">Перенести</button></div>
         </div>
+        <form class="quest-math" id="questMath" hidden>
+          <label for="questAnswer">Ваш ответ</label>
+          <input id="questAnswer" type="number" inputmode="numeric" required autocomplete="off" />
+          <button class="button button--primary modal__button" type="submit" data-notify="manual">Проверить ответ</button>
+        </form>
         <button class="button button--primary modal__button" id="modalButton" data-notify="manual" type="button">Да</button>
       </section>
     </div>
