@@ -186,6 +186,12 @@ function showQuestQuestion() {
 
 function showMathGame() {
   questGame.hidden = true;
+  questPhoto.hidden = true;
+  questPhoto.reset();
+  if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl);
+  photoPreviewUrl = "";
+  questPhotoPreview.removeAttribute("src");
+  questPhotoPreview.hidden = true;
   questMath.hidden = false;
   modalButton.hidden = true;
   modalStep.textContent = "Квест переноса · шаг 3";
