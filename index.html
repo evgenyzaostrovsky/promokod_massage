@@ -42,6 +42,7 @@
         <div class="mode-switch" role="group" aria-label="Что хотите оформить">
           <button id="deliveryMode" class="mode-switch__button is-active" type="button" aria-pressed="true" data-notify="manual">VIP-доставка</button>
           <button id="jenkaMode" class="mode-switch__button" type="button" aria-pressed="false" data-notify="manual">Jenka Bar</button>
+          <button id="dateMode" class="mode-switch__button" type="button" aria-pressed="false" data-notify="manual">Свидание</button>
         </div>
         <p class="swipe-hint">← Можно переключать свайпом →</p>
         <p class="eyebrow">Ваш персональный промокод</p>
@@ -197,6 +198,42 @@
             <label class="service-card"><input type="checkbox" name="entertainment" value="Душевные разговоры у костра" /><span class="service-card__check"></span><span><strong>Душевные разговоры у костра</strong><small>Магия открытого огня, где искры взлетают к звездам вместе с вашими сокровенными секретами. Время, когда спадают маски, рождается искренний смех и стираются любые границы между людьми.</small></span></label>
             <label class="service-card"><input type="checkbox" name="entertainment" value="Музыка" /><span class="service-card__check"></span><span><strong>Музыка</strong><small>Саундтрек вашего идеального побега от реальности. Мелодии, которые тонко угадывают настроение, создают правильный вайб и уютно заполняют паузы между разговорами.</small></span></label>
           </fieldset>
+          <fieldset class="services-group date-group" data-mode="date" data-required-group="flowers" hidden>
+            <legend>💐 Цветы · первый намёк на настроение</legend>
+            <label class="service-card"><input type="radio" name="flowers" value="Нежный букет" /><span class="service-card__check"></span><span><strong>Нежный букет</strong><small>Лёгкий аромат и мягкие оттенки для красивого начала вечера.</small></span></label>
+            <label class="service-card"><input type="radio" name="flowers" value="Красные розы" /><span class="service-card__check"></span><span><strong>Красные розы</strong><small>Классика страсти, которая сразу говорит о намерениях.</small></span></label>
+            <label class="service-card"><input type="radio" name="flowers" value="Без цветов" /><span class="service-card__check"></span><span><strong>Без цветов</strong><small>Всё внимание — только вам и химии между вами.</small></span></label>
+          </fieldset>
+          <fieldset class="services-group date-group" data-mode="date" data-required-group="place" hidden>
+            <legend>📍 Место · декорации вашего вечера</legend>
+            <label class="service-card"><input type="radio" name="place" value="Ресторан" /><span class="service-card__check"></span><span><strong>Ресторан</strong><small>Свечи, красивые блюда и взгляды поверх бокалов.</small></span></label>
+            <label class="service-card"><input type="radio" name="place" value="Кафе" /><span class="service-card__check"></span><span><strong>Кафе</strong><small>Уютно, легко и достаточно близко для долгих разговоров.</small></span></label>
+            <label class="service-card"><input type="radio" name="place" value="Кальянная" /><span class="service-card__check"></span><span><strong>Кальянная</strong><small>Полумрак, густой аромат и неспешный флирт.</small></span></label>
+            <label class="service-card"><input type="radio" name="place" value="Прогулка" /><span class="service-card__check"></span><span><strong>Прогулка</strong><small>Город, вечерний воздух и повод идти чуть ближе друг к другу.</small></span></label>
+            <label class="service-card"><input type="radio" name="place" value="Покатушки на машине" /><span class="service-card__check"></span><span><strong>Покатушки на машине</strong><small>Любимая музыка, ночные огни и маршрут без лишней спешки.</small></span></label>
+            <label class="service-card"><input type="radio" name="place" value="Парк развлечений" /><span class="service-card__check"></span><span><strong>Парк развлечений</strong><small>Адреналин, смех и отличный повод крепче держаться за руку.</small></span></label>
+            <label class="service-card"><input type="radio" name="place" value="Кино" /><span class="service-card__check"></span><span><strong>Кино</strong><small>Темнота зала, общее впечатление и близость без лишних слов.</small></span></label>
+            <label class="service-card"><input type="radio" name="place" value="Театр" /><span class="service-card__check"></span><span><strong>Театр</strong><small>Элегантный вечер, эмоции сцены и красивый выход вдвоём.</small></span></label>
+            <label class="service-card"><input type="radio" name="place" value="Тир" /><span class="service-card__check"></span><span><strong>Тир</strong><small>Азарт, меткие выстрелы и горячее соревнование.</small></span></label>
+          </fieldset>
+          <fieldset class="services-group date-group" data-mode="date" data-required-group="dressCode" hidden>
+            <legend>✨ Дресс-код · как вы хотите выглядеть рядом</legend>
+            <label class="service-card"><input type="radio" name="dressCode" value="Вечерний" /><span class="service-card__check"></span><span><strong>Вечерний</strong><small>Элегантность, от которой сложно отвести взгляд.</small></span></label>
+            <label class="service-card"><input type="radio" name="dressCode" value="Свободный" /><span class="service-card__check"></span><span><strong>Свободный</strong><small>Максимум естественности и ни капли лишнего напряжения.</small></span></label>
+            <label class="service-card"><input type="radio" name="dressCode" value="Спортик" /><span class="service-card__check"></span><span><strong>Спортик</strong><small>Дерзко, удобно и с энергией для спонтанных приключений.</small></span></label>
+          </fieldset>
+          <fieldset class="services-group date-group" data-mode="date" data-required-group="alcohol" hidden>
+            <legend>🥂 Алкоголь · вкус вашего настроения</legend>
+            <label class="service-card"><input type="radio" name="alcohol" value="Вино" /><span class="service-card__check"></span><span><strong>Вино</strong><small>Медленный вкус для тёплых признаний и долгих взглядов.</small></span></label>
+            <label class="service-card"><input type="radio" name="alcohol" value="Коктейли" /><span class="service-card__check"></span><span><strong>Коктейли</strong><small>Ярко, игриво и с лёгким послевкусием авантюры.</small></span></label>
+            <label class="service-card"><input type="radio" name="alcohol" value="Пиво" /><span class="service-card__check"></span><span><strong>Пиво</strong><small>Просто, расслабленно и без лишнего пафоса.</small></span></label>
+            <label class="service-card"><input type="radio" name="alcohol" value="Нет" /><span class="service-card__check"></span><span><strong>Нет</strong><small>Трезвые чувства, ясные желания и только настоящая химия.</small></span></label>
+          </fieldset>
+          <fieldset class="services-group date-group" data-mode="date" data-required-group="pickup" hidden>
+            <legend>🚗 Заехать за вами · красивое начало</legend>
+            <label class="service-card"><input type="radio" name="pickup" value="Да, заехать" /><span class="service-card__check"></span><span><strong>Да, заехать</strong><small>Жека встретит вас и возьмёт заботу о дороге на себя.</small></span></label>
+            <label class="service-card"><input type="radio" name="pickup" value="Нет, встретимся на месте" /><span class="service-card__check"></span><span><strong>Встретимся на месте</strong><small>Немного предвкушения перед первой встречей глазами.</small></span></label>
+          </fieldset>
           <fieldset class="services-group" data-mode="jenka" hidden>
             <legend>🍢 Вкус и расслабление</legend>
             <label class="service-card"><input type="checkbox" name="entertainment" value="Мангальная зона" /><span class="service-card__check"></span><span><strong>Мангальная зона</strong><small>Древний ритуал огня, дыма и гастрономического удовольствия. Здесь рождаются не просто сочные шедевры на углях, а те самые истории, которые потом вспоминают годами.</small></span></label>
@@ -213,7 +250,7 @@
             <legend>✨ Главная интрига</legend>
             <label class="service-card"><input type="checkbox" name="entertainment" value="Приятное продолжение вечера" /><span class="service-card__check"></span><span><strong>Приятное продолжение вечера</strong><small>Тот самый момент, когда официальный сценарий заканчивается и пишется новая история. Мы создали идеальные декорации, а вот как именно завершится эта ночь — останется строгим секретом между вами и этой дачей.</small></span></label>
           </fieldset>
-          <label class="preferences-field" for="preferences">Или введите свои предпочтения
+          <label class="preferences-field" id="preferencesLabel" for="preferences">Или введите свои предпочтения
             <textarea id="preferences" name="preferences" maxlength="500" rows="3" placeholder="Расскажите, что вам хочется…"></textarea>
           </label>
 
@@ -239,6 +276,10 @@
           <label class="time-field" id="bookingDateField" hidden>
             <span>Выберите дату</span>
             <input id="bookingDate" type="date" name="bookingDate" />
+          </label>
+          <label class="time-field" id="dateTimeField" hidden>
+            <span>Выберите время</span>
+            <input id="dateTime" type="time" name="dateTime" />
           </label>
           <div class="weather-card" id="weatherCard" aria-live="polite" hidden>
             <span class="weather-card__icon" id="weatherIcon" aria-hidden="true">☀️</span>

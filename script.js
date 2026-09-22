@@ -30,9 +30,12 @@ const servicesSubmit = document.querySelector("#servicesSubmit");
 const servicesHint = document.querySelector("#servicesHint");
 const serviceInputs = [...document.querySelectorAll('input[name="service"]')];
 const entertainmentInputs = [...document.querySelectorAll('input[name="entertainment"]')];
+const dateInputs = [...document.querySelectorAll('.date-group input[type="radio"]')];
 const preferences = document.querySelector("#preferences");
+const preferencesLabel = document.querySelector("#preferencesLabel");
 const deliveryMode = document.querySelector("#deliveryMode");
 const jenkaMode = document.querySelector("#jenkaMode");
+const dateMode = document.querySelector("#dateMode");
 const mainPage = document.querySelector(".page");
 const servicesTitle = document.querySelector("#servicesTitle");
 const addressFields = document.querySelector("#addressFields");
@@ -42,6 +45,7 @@ const timeModal = document.querySelector("#timeModal");
 const timeForm = document.querySelector("#timeForm");
 const arrivalTime = document.querySelector("#arrivalTime");
 const bookingDate = document.querySelector("#bookingDate");
+const dateTime = document.querySelector("#dateTime");
 const weatherCard = document.querySelector("#weatherCard");
 const weatherIcon = document.querySelector("#weatherIcon");
 const weatherTitle = document.querySelector("#weatherTitle");
@@ -63,6 +67,7 @@ let modalFocusTarget = rescheduleButton;
 let pendingServices = [];
 let currentMode = "delivery";
 let pendingPreferences = "";
+let pendingDateDetails = {};
 let questActive = false;
 let questStep = 0;
 let gameHits = 0;
@@ -140,6 +145,12 @@ function setModalContent(stage) {
       title: "Бронь подтверждена",
       text: "Ждём вас в Jenka Bar.",
       button: "Хорошо",
+    },
+    {
+      step: "Свидание",
+      title: "Свидание запланировано",
+      text: "Жека свяжется с вами, чтобы подтвердить детали.",
+      button: "Прекрасно",
     },
   ][stage];
 
@@ -258,6 +269,13 @@ function openOrderModal(stage = 3) {
 }
 
 function updateServicesState() {
+  if (currentMode === "date") {
+    const requiredGroups = [...document.querySelectorAll('.date-group[data-required-group]')];
+    const selectedCount = requiredGroups.filter((group) => group.querySelector("input:checked")).length;
+    servicesSubmit.disabled = selectedCount !== requiredGroups.length;
+    servicesHint.textContent = `Заполнено: ${selectedCount} из ${requiredGroups.length}`;
+    return;
+  }
   const inputs = currentMode === "delivery" ? serviceInputs : entertainmentInputs;
   const selectedCount = inputs.filter((input) => input.checked).length;
   servicesSubmit.disabled = selectedCount === 0 && !preferences.value.trim();
@@ -269,24 +287,32 @@ function updateServicesState() {
 function setMode(mode) {
   currentMode = mode;
   const isDelivery = mode === "delivery";
+  const isJenka = mode === "jenka";
+  const isDate = mode === "date";
   deliveryMode.classList.toggle("is-active", isDelivery);
-  jenkaMode.classList.toggle("is-active", !isDelivery);
+  jenkaMode.classList.toggle("is-active", isJenka);
+  dateMode.classList.toggle("is-active", isDate);
   deliveryMode.setAttribute("aria-pressed", String(isDelivery));
-  jenkaMode.setAttribute("aria-pressed", String(!isDelivery));
-  orderButton.textContent = isDelivery ? "Оформить VIP-доставку" : "Забронировать Jenka Bar";
+  jenkaMode.setAttribute("aria-pressed", String(isJenka));
+  dateMode.setAttribute("aria-pressed", String(isDate));
+  orderButton.textContent = isDelivery ? "Оформить VIP-доставку" : isJenka ? "Забронировать Jenka Bar" : "Пригласить на свидание";
   rescheduleButton.hidden = !isDelivery;
-  servicesTitle.textContent = isDelivery ? "Выберите удовольствие" : "Выберите развлечения";
-  servicesModal.querySelector(".modal__step").textContent = isDelivery ? "Дополнительные услуги" : "Jenka Bar";
-  servicesSubmit.textContent = isDelivery ? "Оформить выбранное" : "Продолжить бронирование";
-  timeModalTitle.textContent = isDelivery ? "Когда приехать курьеру?" : "Когда вас ждать?";
-  timeModal.querySelector(".modal__step").textContent = isDelivery ? "Время доставки" : "Дата бронирования";
-  timeBack.textContent = isDelivery ? "Назад к услугам" : "Назад к развлечениям";
+  servicesTitle.textContent = isDelivery ? "Выберите удовольствие" : isJenka ? "Выберите развлечения" : "Соберите идеальное свидание";
+  servicesModal.querySelector(".modal__step").textContent = isDelivery ? "Дополнительные услуги" : isJenka ? "Jenka Bar" : "Параметры свидания";
+  servicesSubmit.textContent = isDelivery ? "Оформить выбранное" : isJenka ? "Продолжить бронирование" : "Выбрать дату и время";
+  timeModalTitle.textContent = isDelivery ? "Когда приехать курьеру?" : isJenka ? "Когда вас ждать?" : "Когда устроим свидание?";
+  timeModal.querySelector(".modal__step").textContent = isDelivery ? "Время доставки" : isJenka ? "Дата бронирования" : "Дата и время свидания";
+  timeBack.textContent = isDelivery ? "Назад к услугам" : isJenka ? "Назад к развлечениям" : "Назад к параметрам";
   document.querySelector("#arrivalTimeField").hidden = !isDelivery;
   document.querySelector("#bookingDateField").hidden = isDelivery;
+  document.querySelector("#dateTimeField").hidden = !isDate;
   arrivalTime.required = isDelivery;
   bookingDate.required = !isDelivery;
+  dateTime.required = isDate;
   addressFields.hidden = !isDelivery;
   deliveryAddress.required = isDelivery;
+  weatherCard.hidden = !isJenka || !bookingDate.value;
+  preferencesLabel.firstChild.textContent = isDate ? "Дополнительные пожелания\n            " : "Или введите свои предпочтения\n            ";
   document.querySelectorAll(".services-group[data-mode]").forEach((group) => {
     group.hidden = group.dataset.mode !== mode;
   });
@@ -297,14 +323,14 @@ function setMode(mode) {
 function updateTimeState() {
   timeSubmit.disabled = currentMode === "delivery"
     ? !arrivalTime.value || !deliveryAddress.value.trim()
-    : !bookingDate.value;
+    : currentMode === "date" ? !bookingDate.value || !dateTime.value : !bookingDate.value;
 }
 
 let weatherRequest = 0;
 async function updateBookingWeather() {
   const date = bookingDate.value;
   const requestId = ++weatherRequest;
-  if (!date) {
+  if (!date || currentMode !== "jenka") {
     weatherCard.hidden = true;
     return;
   }
@@ -391,11 +417,13 @@ rescheduleButton.addEventListener("click", openModal);
 function selectMode(mode) {
   if (mode === currentMode) return;
   setMode(mode);
-  sendButtonNotification(mode === "delivery" ? "Выбрана VIP-доставка" : "Выбран Jenka Bar").catch(() => {});
+  const action = mode === "delivery" ? "Выбрана VIP-доставка" : mode === "jenka" ? "Выбран Jenka Bar" : "Выбрано свидание";
+  sendButtonNotification(action).catch(() => {});
 }
 
 deliveryMode.addEventListener("click", () => selectMode("delivery"));
 jenkaMode.addEventListener("click", () => selectMode("jenka"));
+dateMode.addEventListener("click", () => selectMode("date"));
 
 let swipeStart = null;
 mainPage.addEventListener("touchstart", (event) => {
@@ -408,7 +436,10 @@ mainPage.addEventListener("touchend", (event) => {
   const distanceY = event.changedTouches[0].clientY - swipeStart.y;
   swipeStart = null;
   if (Math.abs(distanceX) < 60 || Math.abs(distanceX) < Math.abs(distanceY) * 1.4) return;
-  selectMode(distanceX < 0 ? "jenka" : "delivery");
+  const modes = ["delivery", "jenka", "date"];
+  const currentIndex = modes.indexOf(currentMode);
+  const nextIndex = distanceX < 0 ? Math.min(currentIndex + 1, modes.length - 1) : Math.max(currentIndex - 1, 0);
+  selectMode(modes[nextIndex]);
 }, { passive: true });
 mainPage.addEventListener("touchcancel", () => { swipeStart = null; }, { passive: true });
 modalButton.addEventListener("click", () => {
@@ -502,10 +533,21 @@ servicesClose.addEventListener("click", closeServicesModal);
 servicesModal.querySelector(".services-modal__backdrop").addEventListener("click", closeServicesModal);
 serviceInputs.forEach((input) => input.addEventListener("change", updateServicesState));
 entertainmentInputs.forEach((input) => input.addEventListener("change", updateServicesState));
+dateInputs.forEach((input) => input.addEventListener("change", updateServicesState));
 preferences.addEventListener("input", updateServicesState);
 
 servicesForm.addEventListener("submit", (event) => {
   event.preventDefault();
+  if (currentMode === "date") {
+    const requiredGroups = [...document.querySelectorAll('.date-group[data-required-group]')];
+    if (requiredGroups.some((group) => !group.querySelector("input:checked"))) return;
+    pendingDateDetails = Object.fromEntries(requiredGroups.map((group) => [group.dataset.requiredGroup, group.querySelector("input:checked").value]));
+    pendingServices = ["Свидание"];
+    pendingPreferences = preferences.value.trim();
+    closeServicesModal();
+    openTimeModal();
+    return;
+  }
   const inputs = currentMode === "delivery" ? serviceInputs : entertainmentInputs;
   const selectedServices = inputs.filter((input) => input.checked).map((input) => input.value);
   if (!selectedServices.length && !preferences.value.trim()) return;
@@ -517,6 +559,7 @@ servicesForm.addEventListener("submit", (event) => {
 });
 
 arrivalTime.addEventListener("input", updateTimeState);
+dateTime.addEventListener("input", updateTimeState);
 bookingDate.addEventListener("input", () => {
   updateTimeState();
   updateBookingWeather();
@@ -532,16 +575,19 @@ timeForm.addEventListener("submit", async (event) => {
 
   let resultStage = 4;
   try {
-    const response = await sendButtonNotification(currentMode === "delivery" ? "Подтвердить время" : "Подтвердить бронирование", {
+    const action = currentMode === "delivery" ? "Подтвердить время" : currentMode === "jenka" ? "Подтвердить бронирование" : "Подтвердить свидание";
+    const response = await sendButtonNotification(action, {
       mode: currentMode,
       services: currentMode === "delivery" ? pendingServices : [],
       entertainments: currentMode === "jenka" ? pendingServices : [],
       preferences: pendingPreferences,
       deliveryTime: currentMode === "delivery" ? arrivalTime.value : "",
-      bookingDate: currentMode === "jenka" ? bookingDate.value : "",
+      bookingDate: currentMode !== "delivery" ? bookingDate.value : "",
+      dateTime: currentMode === "date" ? dateTime.value : "",
+      dateDetails: currentMode === "date" ? pendingDateDetails : {},
       address: currentMode === "delivery" ? deliveryAddress.value.trim() : "",
     });
-    if (response.status === 204) resultStage = currentMode === "delivery" ? 3 : 5;
+    if (response.status === 204) resultStage = currentMode === "delivery" ? 3 : currentMode === "jenka" ? 5 : 6;
   } catch {}
 
   closeTimeModal();
@@ -551,6 +597,7 @@ timeForm.addEventListener("submit", async (event) => {
   weatherCard.hidden = true;
   pendingServices = [];
   pendingPreferences = "";
+  pendingDateDetails = {};
   timeSubmit.disabled = true;
   timeSubmit.textContent = "Подтвердить";
   updateServicesState();
