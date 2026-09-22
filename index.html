@@ -240,6 +240,10 @@
             <span>Выберите дату</span>
             <input id="bookingDate" type="date" name="bookingDate" />
           </label>
+          <div class="weather-card" id="weatherCard" aria-live="polite" hidden>
+            <span class="weather-card__icon" id="weatherIcon" aria-hidden="true">☀️</span>
+            <div><strong id="weatherTitle">Погода в Волгограде</strong><p id="weatherDetails"></p></div>
+          </div>
           <div id="addressFields">
             <p class="address-city">Адрес доставки · г. Волгоград</p>
             <label class="time-field address-field"><span>Улица, дом, квартира</span><input id="deliveryAddress" type="text" name="deliveryAddress" autocomplete="street-address" maxlength="200" placeholder="Например, ул. Мира, 12, кв. 3" required /></label>

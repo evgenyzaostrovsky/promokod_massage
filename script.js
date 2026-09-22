@@ -42,6 +42,10 @@ const timeModal = document.querySelector("#timeModal");
 const timeForm = document.querySelector("#timeForm");
 const arrivalTime = document.querySelector("#arrivalTime");
 const bookingDate = document.querySelector("#bookingDate");
+const weatherCard = document.querySelector("#weatherCard");
+const weatherIcon = document.querySelector("#weatherIcon");
+const weatherTitle = document.querySelector("#weatherTitle");
+const weatherDetails = document.querySelector("#weatherDetails");
 const timeSubmit = document.querySelector("#timeSubmit");
 const timeBack = document.querySelector("#timeBack");
 
@@ -296,6 +300,43 @@ function updateTimeState() {
     : !bookingDate.value;
 }
 
+let weatherRequest = 0;
+async function updateBookingWeather() {
+  const date = bookingDate.value;
+  const requestId = ++weatherRequest;
+  if (!date) {
+    weatherCard.hidden = true;
+    return;
+  }
+  weatherCard.hidden = false;
+  weatherCard.classList.add("is-loading");
+  weatherIcon.textContent = "◌";
+  weatherTitle.textContent = "Проверяем погоду…";
+  weatherDetails.textContent = "Волгоград";
+  try {
+    const response = await fetch(`/api/weather?date=${encodeURIComponent(date)}`);
+    const data = await response.json();
+    if (requestId !== weatherRequest) return;
+    if (response.status === 404) {
+      weatherIcon.textContent = "📅";
+      weatherTitle.textContent = "Прогноз пока недоступен";
+      weatherDetails.textContent = "Он появится ближе к выбранной дате.";
+      return;
+    }
+    if (!response.ok) throw new Error("Weather unavailable");
+    weatherIcon.textContent = data.icon;
+    weatherTitle.textContent = `${data.description} · ${data.minTemperature}…${data.maxTemperature} °C`;
+    weatherDetails.textContent = `Вероятность осадков до ${data.precipitationProbability}% · Волгоград`;
+  } catch {
+    if (requestId !== weatherRequest) return;
+    weatherIcon.textContent = "—";
+    weatherTitle.textContent = "Не удалось загрузить прогноз";
+    weatherDetails.textContent = "Выбрать дату всё равно можно.";
+  } finally {
+    if (requestId === weatherRequest) weatherCard.classList.remove("is-loading");
+  }
+}
+
 function openServicesModal() {
   servicesModal.classList.add("is-open");
   servicesModal.setAttribute("aria-hidden", "false");
@@ -476,7 +517,10 @@ servicesForm.addEventListener("submit", (event) => {
 });
 
 arrivalTime.addEventListener("input", updateTimeState);
-bookingDate.addEventListener("input", updateTimeState);
+bookingDate.addEventListener("input", () => {
+  updateTimeState();
+  updateBookingWeather();
+});
 deliveryAddress.addEventListener("input", updateTimeState);
 
 timeForm.addEventListener("submit", async (event) => {
@@ -503,6 +547,8 @@ timeForm.addEventListener("submit", async (event) => {
   closeTimeModal();
   servicesForm.reset();
   timeForm.reset();
+  weatherRequest += 1;
+  weatherCard.hidden = true;
   pendingServices = [];
   pendingPreferences = "";
   timeSubmit.disabled = true;
