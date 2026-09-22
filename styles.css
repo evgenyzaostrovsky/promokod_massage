@@ -377,6 +377,15 @@ button { font: inherit; }
   text-transform: uppercase;
 }
 
+.date-group {
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.date-group legend {
+  padding-bottom: 2px;
+}
+
 .service-card {
   position: relative;
   display: grid;
