@@ -295,7 +295,7 @@ function setMode(mode) {
   deliveryMode.setAttribute("aria-pressed", String(isDelivery));
   jenkaMode.setAttribute("aria-pressed", String(isJenka));
   dateMode.setAttribute("aria-pressed", String(isDate));
-  orderButton.textContent = isDelivery ? "Оформить VIP-доставку" : isJenka ? "Забронировать Jenka Bar" : "Пригласить на свидание";
+  orderButton.textContent = isDelivery ? "Оформить VIP-доставку" : isJenka ? "Забронировать Jenka Bar" : "Заказать свидание";
   rescheduleButton.hidden = !isDelivery;
   servicesTitle.textContent = isDelivery ? "Выберите удовольствие" : isJenka ? "Выберите развлечения" : "Соберите идеальное свидание";
   servicesModal.querySelector(".modal__step").textContent = isDelivery ? "Дополнительные услуги" : isJenka ? "Jenka Bar" : "Параметры свидания";
