@@ -34,9 +34,27 @@ button { font: inherit; }
   backdrop-filter: blur(12px);
   cursor: pointer;
 }
-.sound-toggle.is-playing { color: #080808; background: #f5f1eb; box-shadow: 0 0 28px rgba(255,255,255,.18); }
-.sound-toggle.is-playing span { animation: soundPulse 1.44s ease-in-out infinite; }
-@keyframes soundPulse { 50% { transform: scale(1.2) rotate(5deg); } }
+.sound-toggle.is-playing {
+  color: #080808;
+  background: #f5f1eb;
+  animation: soundPulse 3.333s cubic-bezier(.45, 0, .25, 1) infinite;
+}
+.sound-toggle.is-playing span { animation: soundNote 3.333s cubic-bezier(.45, 0, .25, 1) infinite; }
+@keyframes soundPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 18px rgba(255,255,255,.12); }
+  12.5% { transform: scale(1.08); box-shadow: 0 0 34px rgba(255,255,255,.3); }
+  25% { transform: scale(1.015); box-shadow: 0 0 22px rgba(255,255,255,.17); }
+  50% { transform: scale(1.055); box-shadow: 0 0 30px rgba(255,255,255,.24); }
+  75% { transform: scale(1.025); box-shadow: 0 0 24px rgba(255,255,255,.19); }
+}
+@keyframes soundNote {
+  0%, 100% { transform: scale(1) rotate(0); }
+  12.5% { transform: scale(1.13) rotate(5deg); }
+  50% { transform: scale(1.08) rotate(-3deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sound-toggle.is-playing, .sound-toggle.is-playing span { animation: none; }
+}
 
 .account-trigger {
   position: fixed;
