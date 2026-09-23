@@ -33,19 +33,32 @@ button { font: inherit; }
   background: rgba(8,8,8,.72);
   backdrop-filter: blur(12px);
   cursor: pointer;
+  touch-action: manipulation;
+  pointer-events: auto;
+}
+.sound-toggle::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border: 1px solid rgba(255,255,255,.55);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
 }
 .sound-toggle.is-playing {
   color: #080808;
   background: #f5f1eb;
-  animation: soundPulse 3.333s cubic-bezier(.45, 0, .25, 1) infinite;
+  box-shadow: 0 0 20px rgba(255,255,255,.16);
 }
+.sound-toggle.is-playing::after { animation: soundPulse 3.333s cubic-bezier(.45, 0, .25, 1) infinite; }
 .sound-toggle.is-playing span { animation: soundNote 3.333s cubic-bezier(.45, 0, .25, 1) infinite; }
 @keyframes soundPulse {
-  0%, 100% { transform: scale(1); box-shadow: 0 0 18px rgba(255,255,255,.12); }
-  12.5% { transform: scale(1.08); box-shadow: 0 0 34px rgba(255,255,255,.3); }
-  25% { transform: scale(1.015); box-shadow: 0 0 22px rgba(255,255,255,.17); }
-  50% { transform: scale(1.055); box-shadow: 0 0 30px rgba(255,255,255,.24); }
-  75% { transform: scale(1.025); box-shadow: 0 0 24px rgba(255,255,255,.19); }
+  0%, 100% { transform: scale(1); opacity: .12; box-shadow: 0 0 14px rgba(255,255,255,.1); }
+  12.5% { transform: scale(1.22); opacity: .52; box-shadow: 0 0 30px rgba(255,255,255,.28); }
+  25% { transform: scale(1.07); opacity: .2; }
+  50% { transform: scale(1.16); opacity: .42; box-shadow: 0 0 25px rgba(255,255,255,.22); }
+  75% { transform: scale(1.1); opacity: .27; }
 }
 @keyframes soundNote {
   0%, 100% { transform: scale(1) rotate(0); }
@@ -53,7 +66,7 @@ button { font: inherit; }
   50% { transform: scale(1.08) rotate(-3deg); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .sound-toggle.is-playing, .sound-toggle.is-playing span { animation: none; }
+  .sound-toggle.is-playing::after, .sound-toggle.is-playing span { animation: none; }
 }
 
 .account-trigger {

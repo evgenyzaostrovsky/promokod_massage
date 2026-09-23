@@ -19,6 +19,7 @@ export function initAmbientAudio(button) {
   let wantsToPlay = true;
   let beatIndex = 0;
   let nextBeatTime = 0;
+  let lastPointerToggle = 0;
 
   function createAudioGraph() {
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -213,10 +214,17 @@ export function initAmbientAudio(button) {
     updateButton(false);
   }
 
-  button.addEventListener("click", (event) => {
+  const toggleFromUser = (event) => {
     event.stopPropagation();
+    lastPointerToggle = performance.now();
     if (playing) stop();
     else start().catch(() => updateButton(false));
+  };
+  button.addEventListener("pointerup", toggleFromUser);
+  button.addEventListener("click", (event) => {
+    event.stopPropagation();
+    if (performance.now() - lastPointerToggle < 500) return;
+    toggleFromUser(event);
   });
   const unlockOnInteraction = (event) => {
     if (event?.target && button.contains(event.target)) return;
