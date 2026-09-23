@@ -21,10 +21,11 @@ export function initAmbientAudio(button) {
   function scheduleBeat() {
     if (!playing || context.state !== "running") return;
     const now = context.currentTime + 0.04;
-    const bass = [73.42, 87.31, 65.41, 82.41][Math.floor(step / 4) % 4];
-    tone(bass, now, 0.42, 0.055, "sine");
-    if (step % 2 === 0) tone(220, now + 0.02, 0.08, 0.012, "triangle");
-    if (step % 4 === 3) tone(bass * 2, now + 0.12, 0.28, 0.018, "sine");
+    const bass = [110, 130.81, 98, 123.47][Math.floor(step / 4) % 4];
+    tone(bass, now, 0.44, 0.14, "sine");
+    tone(bass * 2, now, 0.3, 0.045, "triangle");
+    if (step % 2 === 0) tone(440, now + 0.02, 0.1, 0.045, "triangle");
+    if (step % 4 === 3) tone(bass * 3, now + 0.12, 0.3, 0.06, "sine");
     step = (step + 1) % 16;
   }
 
@@ -34,7 +35,7 @@ export function initAmbientAudio(button) {
       if (!AudioContextClass) return;
       context = new AudioContextClass();
       master = context.createGain();
-      master.gain.value = 0.65;
+      master.gain.value = 0.9;
       master.connect(context.destination);
     }
     await context.resume();
