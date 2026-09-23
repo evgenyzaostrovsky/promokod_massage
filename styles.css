@@ -269,6 +269,7 @@ button { font: inherit; }
 .quest-choice { min-height: 52px; padding: 10px; border: 1px solid rgba(255,255,255,.24); color: #f5f1eb; background: rgba(255,255,255,.035); cursor: pointer; }
 .quest-choice:active { background: #f5f1eb; color: #080808; }
 .quest-feedback { min-height: 18px; margin: 12px 0 0; color: #e6c0c0; font-size: 11px; }
+.quest-attempts { display: block; margin-top: 7px; color: rgba(255,255,255,.42); font-size: 9px; letter-spacing: .1em; text-align: center; text-transform: uppercase; }
 .mini-tiles { display: grid; grid-template-columns: repeat(3, 66px); justify-content: center; gap: 7px; margin-top: 16px; }
 .mini-tile { width: 66px; height: 66px; border: 1px solid rgba(255,255,255,.5); color: #080808; background: #f5f1eb; font-family: "Cormorant Garamond", serif; font-size: 29px; cursor: pointer; }
 .mini-tile.is-empty { border-color: rgba(255,255,255,.12); background: rgba(255,255,255,.025); }

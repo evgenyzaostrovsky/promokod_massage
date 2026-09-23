@@ -88,6 +88,8 @@
           <label for="questAnswer">Ваш ответ</label>
           <input id="questAnswer" type="number" inputmode="numeric" required autocomplete="off" />
           <button class="button button--primary modal__button" type="submit" data-notify="manual">Проверить ответ</button>
+          <p class="quest-feedback" id="mathFeedback" aria-live="polite"></p>
+          <small class="quest-attempts" id="mathAttempts">Осталось попыток: 3</small>
         </form>
         <div class="quest-extras" id="questExtras" hidden></div>
         <form class="quest-photo" id="questPhoto" hidden>

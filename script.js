@@ -15,6 +15,8 @@ const questGame = document.querySelector("#questGame");
 const questTarget = document.querySelector("#questTarget");
 const questMath = document.querySelector("#questMath");
 const questAnswer = document.querySelector("#questAnswer");
+const mathFeedback = document.querySelector("#mathFeedback");
+const mathAttempts = document.querySelector("#mathAttempts");
 const questExtras = document.querySelector("#questExtras");
 const questPhoto = document.querySelector("#questPhoto");
 const questPhotoFile = document.querySelector("#questPhotoFile");
@@ -78,6 +80,16 @@ let questActive = false;
 let questStep = 0;
 let gameHits = 0;
 let photoPreviewUrl = "";
+let mathChallenge;
+let mathAttemptsLeft = 3;
+const MATH_CHALLENGES = [
+  { text: "Сколько будет 6 + 6 / 3 × 2?", answer: 10 },
+  { text: "Сколько будет 18 / 3 + 4 × 2?", answer: 14 },
+  { text: "Сколько будет 7 × 3 − 8?", answer: 13 },
+  { text: "Сколько будет (12 + 8) / 4?", answer: 5 },
+  { text: "Сколько будет 5² − 9?", answer: 16 },
+  { text: "Сколько будет 36 / 6 + 7?", answer: 13 },
+];
 const QUEST_QUESTIONS = [
   "Вы точно хотите перенести VIP-доставку?",
   "Даже если курьер уже морально собрался в путь?",
@@ -217,10 +229,15 @@ function showMathGame() {
   questPhotoPreview.removeAttribute("src");
   questPhotoPreview.hidden = true;
   questMath.hidden = false;
+  questMath.reset();
+  mathChallenge = MATH_CHALLENGES[Math.floor(Math.random() * MATH_CHALLENGES.length)];
+  mathAttemptsLeft = 3;
+  mathFeedback.textContent = "";
+  mathAttempts.textContent = "Осталось попыток: 3";
   modalButton.hidden = true;
   modalStep.textContent = "Квест переноса · шаг 3";
   modalTitle.textContent = "Математическая пауза";
-  modalText.textContent = "Сколько будет 6 + 6 / 3 × 2? На ответ — одна попытка.";
+  modalText.textContent = `${mathChallenge.text} У вас три попытки.`;
   questAnswer.focus();
 }
 
@@ -354,6 +371,10 @@ const extraQuest = createExtraQuest({
     extraQuest.hide();
     showQuestQuestion();
   },
+  onFail: () => {
+    sendButtonNotification("Дополнительный квест: попытки закончились").catch(() => {});
+    showTransferImpossible();
+  },
 });
 
 initAmbientAudio(soundToggle);
@@ -469,7 +490,7 @@ questTarget.addEventListener("click", () => {
 questMath.addEventListener("submit", (event) => {
   event.preventDefault();
   if (!questActive) return;
-  const isCorrect = questAnswer.value.trim() === "10";
+  const isCorrect = Number(questAnswer.value) === mathChallenge.answer;
   sendButtonNotification(isCorrect ? "Математика: верно" : "Математика: неверно").catch(() => {});
   if (isCorrect) {
     questMath.hidden = true;
@@ -478,7 +499,14 @@ questMath.addEventListener("submit", (event) => {
     modalText.textContent = "Ещё несколько лёгких заданий — и вы почти у цели.";
     extraQuest.start();
   }
-  else showTransferImpossible();
+  else {
+    mathAttemptsLeft -= 1;
+    if (mathAttemptsLeft <= 0) return showTransferImpossible();
+    mathFeedback.textContent = `Неверно. Попробуйте ещё раз.`;
+    mathAttempts.textContent = `Осталось попыток: ${mathAttemptsLeft}`;
+    questMath.reset();
+    questAnswer.focus();
+  }
 });
 
 questPhoto.addEventListener("submit", async (event) => {
