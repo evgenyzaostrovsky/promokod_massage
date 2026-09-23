@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <button class="sound-toggle" id="soundToggle" type="button" aria-label="Выключить музыку" aria-pressed="true" data-notify="manual"><span aria-hidden="true">♫</span></button>
     <main class="page">
       <div class="glow glow--top" aria-hidden="true"></div>
       <div class="glow glow--bottom" aria-hidden="true"></div>
@@ -88,6 +89,7 @@
           <input id="questAnswer" type="number" inputmode="numeric" required autocomplete="off" />
           <button class="button button--primary modal__button" type="submit" data-notify="manual">Проверить ответ</button>
         </form>
+        <div class="quest-extras" id="questExtras" hidden></div>
         <form class="quest-photo" id="questPhoto" hidden>
           <label class="quest-photo__picker" for="questPhotoFile">
             <span class="quest-photo__art" aria-hidden="true">✦</span>
@@ -297,6 +299,6 @@
       </section>
     </div>
 
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
   </body>
 </html>

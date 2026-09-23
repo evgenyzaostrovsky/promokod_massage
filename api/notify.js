@@ -17,6 +17,7 @@ const ALLOWED_ACTIONS = new Set([
   "Математика: верно",
   "Математика: неверно",
   "Квест переноса",
+  "Дополнительный квест",
 ]);
 const ALLOWED_ENTERTAINMENTS = new Set([
   "Море", "Душевные разговоры у костра", "Музыка", "Мангальная зона", "Кальян",
@@ -76,6 +77,7 @@ export default async function handler(request, response) {
   const preferences = String(body?.preferences || "").trim().slice(0, 500);
   const address = String(body?.address || "").trim().slice(0, 200);
   const questStep = Number(body?.questStep);
+  const questGame = String(body?.questGame || "").trim();
   const dateTime = String(body?.dateTime || "").trim();
   const rawDateDetails = body?.dateDetails && typeof body.dateDetails === "object" ? body.dateDetails : {};
   const dateDetails = Object.fromEntries(Object.entries(DATE_OPTIONS).map(([key, allowed]) => {
@@ -88,6 +90,9 @@ export default async function handler(request, response) {
   }
   if (action === "Квест переноса" && (!Number.isInteger(questStep) || questStep < 1 || questStep > 10)) {
     return response.status(400).json({ error: "Invalid quest step" });
+  }
+  if (action === "Дополнительный квест" && !["logic", "tiles", "odd", "captcha", "spark"].includes(questGame)) {
+    return response.status(400).json({ error: "Invalid quest game" });
   }
 
   const isConfirmation = action === "Подтвердить время" || action === "Подтвердить бронирование" || action === "Подтвердить свидание";
@@ -128,7 +133,7 @@ export default async function handler(request, response) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       chat_id: chatId,
-      text: `🔥 ${isConfirmation ? mode === "delivery" ? "Новая VIP-доставка" : mode === "jenka" ? "Новая бронь Jenka Bar" : "Новое свидание с Жекой" : `Нажата кнопка: ${action}${action === "Квест переноса" ? ` · ${questStep}/10` : ""}`}${courierText}${servicesText}${entertainmentsText}${dateText}${preferencesText}${deliveryTimeText}${bookingDateText}${addressText}\n\n🕒 ${timestamp} МСК`,
+      text: `🔥 ${isConfirmation ? mode === "delivery" ? "Новая VIP-доставка" : mode === "jenka" ? "Новая бронь Jenka Bar" : "Новое свидание с Жекой" : `Нажата кнопка: ${action}${action === "Квест переноса" ? ` · ${questStep}/10` : action === "Дополнительный квест" ? ` · ${questGame}` : ""}`}${courierText}${servicesText}${entertainmentsText}${dateText}${preferencesText}${deliveryTimeText}${bookingDateText}${addressText}\n\n🕒 ${timestamp} МСК`,
     }),
   });
 

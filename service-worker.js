@@ -1,9 +1,12 @@
-const CACHE_NAME = "malyshka-delivery-v29";
+const CACHE_NAME = "malyshka-delivery-v31";
 const APP_ASSETS = [
   "./",
   "./index.html",
   "./styles.css",
   "./script.js",
+  "./js/audio.js",
+  "./js/weather.js",
+  "./js/extra-quest.js",
   "./manifest.webmanifest",
   "./assets/pepper-white.png",
   "./assets/courier-zheka.png",

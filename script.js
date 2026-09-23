@@ -1,3 +1,7 @@
+import { initAmbientAudio } from "./js/audio.js";
+import { initBookingWeather } from "./js/weather.js";
+import { createExtraQuest } from "./js/extra-quest.js";
+
 const hoursNode = document.querySelector("#hours");
 const minutesNode = document.querySelector("#minutes");
 const secondsNode = document.querySelector("#seconds");
@@ -11,6 +15,7 @@ const questGame = document.querySelector("#questGame");
 const questTarget = document.querySelector("#questTarget");
 const questMath = document.querySelector("#questMath");
 const questAnswer = document.querySelector("#questAnswer");
+const questExtras = document.querySelector("#questExtras");
 const questPhoto = document.querySelector("#questPhoto");
 const questPhotoFile = document.querySelector("#questPhotoFile");
 const questPhotoPreview = document.querySelector("#questPhotoPreview");
@@ -52,6 +57,7 @@ const weatherTitle = document.querySelector("#weatherTitle");
 const weatherDetails = document.querySelector("#weatherDetails");
 const timeSubmit = document.querySelector("#timeSubmit");
 const timeBack = document.querySelector("#timeBack");
+const soundToggle = document.querySelector("#soundToggle");
 
 const moscowClock = new Intl.DateTimeFormat("en-GB", {
   timeZone: "Europe/Moscow",
@@ -161,6 +167,7 @@ function setModalContent(stage) {
 }
 
 function openModal() {
+  extraQuest.hide();
   questActive = true;
   questStep = 0;
   gameHits = 0;
@@ -188,6 +195,7 @@ function openModal() {
 }
 
 function showQuestQuestion() {
+  extraQuest.hide();
   questGame.hidden = true;
   questMath.hidden = true;
   questPhoto.hidden = true;
@@ -200,6 +208,7 @@ function showQuestQuestion() {
 }
 
 function showMathGame() {
+  extraQuest.hide();
   questGame.hidden = true;
   questPhoto.hidden = true;
   questPhoto.reset();
@@ -216,6 +225,7 @@ function showMathGame() {
 }
 
 function showPhotoStep() {
+  extraQuest.hide();
   questGame.hidden = true;
   questMath.hidden = true;
   questPhoto.hidden = false;
@@ -244,6 +254,7 @@ questPhotoFile.addEventListener("change", () => {
 questPhotoPreview.addEventListener("error", () => { questPhotoPreview.hidden = true; });
 
 function showTransferImpossible() {
+  extraQuest.hide();
   questActive = false;
   questGame.hidden = true;
   questMath.hidden = true;
@@ -255,6 +266,7 @@ function showTransferImpossible() {
 }
 
 function openOrderModal(stage = 3) {
+  extraQuest.hide();
   questActive = false;
   questGame.hidden = true;
   questMath.hidden = true;
@@ -326,42 +338,25 @@ function updateTimeState() {
     : currentMode === "date" ? !bookingDate.value || !dateTime.value : !bookingDate.value;
 }
 
-let weatherRequest = 0;
-async function updateBookingWeather() {
-  const date = bookingDate.value;
-  const requestId = ++weatherRequest;
-  if (!date || currentMode !== "jenka") {
-    weatherCard.hidden = true;
-    return;
-  }
-  weatherCard.hidden = false;
-  weatherCard.classList.add("is-loading");
-  weatherIcon.textContent = "◌";
-  weatherTitle.textContent = "Проверяем погоду…";
-  weatherDetails.textContent = "Волгоград";
-  try {
-    const response = await fetch(`/api/weather?date=${encodeURIComponent(date)}`);
-    const data = await response.json();
-    if (requestId !== weatherRequest) return;
-    if (response.status === 404) {
-      weatherIcon.textContent = "📅";
-      weatherTitle.textContent = "Прогноз пока недоступен";
-      weatherDetails.textContent = "Он появится ближе к выбранной дате.";
-      return;
-    }
-    if (!response.ok) throw new Error("Weather unavailable");
-    weatherIcon.textContent = data.icon;
-    weatherTitle.textContent = `${data.description} · ${data.minTemperature}…${data.maxTemperature} °C`;
-    weatherDetails.textContent = `Вероятность осадков до ${data.precipitationProbability}% · Волгоград`;
-  } catch {
-    if (requestId !== weatherRequest) return;
-    weatherIcon.textContent = "—";
-    weatherTitle.textContent = "Не удалось загрузить прогноз";
-    weatherDetails.textContent = "Выбрать дату всё равно можно.";
-  } finally {
-    if (requestId === weatherRequest) weatherCard.classList.remove("is-loading");
-  }
-}
+const bookingWeather = initBookingWeather({
+  input: bookingDate,
+  card: weatherCard,
+  icon: weatherIcon,
+  title: weatherTitle,
+  details: weatherDetails,
+  getMode: () => currentMode,
+});
+
+const extraQuest = createExtraQuest({
+  root: questExtras,
+  onProgress: (step) => sendButtonNotification("Дополнительный квест", { questGame: step }).catch(() => {}),
+  onComplete: () => {
+    extraQuest.hide();
+    showQuestQuestion();
+  },
+});
+
+initAmbientAudio(soundToggle);
 
 function openServicesModal() {
   servicesModal.classList.add("is-open");
@@ -407,6 +402,7 @@ function closeTimeModal() {
 }
 
 function closeModal() {
+  extraQuest.hide();
   questActive = false;
   modal.classList.remove("is-open");
   modal.setAttribute("aria-hidden", "true");
@@ -475,7 +471,13 @@ questMath.addEventListener("submit", (event) => {
   if (!questActive) return;
   const isCorrect = questAnswer.value.trim() === "10";
   sendButtonNotification(isCorrect ? "Математика: верно" : "Математика: неверно").catch(() => {});
-  if (isCorrect) showQuestQuestion();
+  if (isCorrect) {
+    questMath.hidden = true;
+    modalStep.textContent = "Квест · серия испытаний";
+    modalTitle.textContent = "Проверим вашу решимость";
+    modalText.textContent = "Ещё несколько лёгких заданий — и вы почти у цели.";
+    extraQuest.start();
+  }
   else showTransferImpossible();
 });
 
@@ -562,7 +564,7 @@ arrivalTime.addEventListener("input", updateTimeState);
 dateTime.addEventListener("input", updateTimeState);
 bookingDate.addEventListener("input", () => {
   updateTimeState();
-  updateBookingWeather();
+  bookingWeather.update();
 });
 deliveryAddress.addEventListener("input", updateTimeState);
 
@@ -593,8 +595,7 @@ timeForm.addEventListener("submit", async (event) => {
   closeTimeModal();
   servicesForm.reset();
   timeForm.reset();
-  weatherRequest += 1;
-  weatherCard.hidden = true;
+  bookingWeather.reset();
   pendingServices = [];
   pendingPreferences = "";
   pendingDateDetails = {};
