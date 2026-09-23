@@ -1,6 +1,7 @@
 import { initAmbientAudio } from "./js/audio.js";
 import { initBookingWeather } from "./js/weather.js";
 import { createExtraQuest } from "./js/extra-quest.js";
+import { initAccount } from "./js/account.js";
 
 const hoursNode = document.querySelector("#hours");
 const minutesNode = document.querySelector("#minutes");
@@ -60,6 +61,7 @@ const weatherDetails = document.querySelector("#weatherDetails");
 const timeSubmit = document.querySelector("#timeSubmit");
 const timeBack = document.querySelector("#timeBack");
 const soundToggle = document.querySelector("#soundToggle");
+const account = initAccount();
 
 const moscowClock = new Intl.DateTimeFormat("en-GB", {
   timeZone: "Europe/Moscow",
@@ -548,7 +550,8 @@ questPhoto.addEventListener("submit", async (event) => {
   }
 });
 
-orderButton.addEventListener("click", () => {
+orderButton.addEventListener("click", async () => {
+  if (!await account.ensureAuthenticated()) return;
   if (currentMode === "delivery") openCourierModal();
   else openServicesModal();
 });
@@ -617,7 +620,17 @@ timeForm.addEventListener("submit", async (event) => {
       dateDetails: currentMode === "date" ? pendingDateDetails : {},
       address: currentMode === "delivery" ? deliveryAddress.value.trim() : "",
     });
-    if (response.status === 204) resultStage = currentMode === "delivery" ? 3 : currentMode === "jenka" ? 5 : 6;
+    if (response.status === 204) {
+      resultStage = currentMode === "delivery" ? 3 : currentMode === "jenka" ? 5 : 6;
+      account.recordOrder({
+        mode: currentMode,
+        items: currentMode === "date" ? Object.values(pendingDateDetails) : [...pendingServices],
+        preferences: pendingPreferences,
+        time: currentMode === "delivery" ? arrivalTime.value : currentMode === "date" ? dateTime.value : "",
+        date: currentMode === "delivery" ? "" : bookingDate.value,
+        address: currentMode === "delivery" ? deliveryAddress.value.trim() : "",
+      });
+    }
   } catch {}
 
   closeTimeModal();
