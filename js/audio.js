@@ -15,6 +15,8 @@ export function initAmbientAudio(button) {
   let noiseBuffer;
   let scheduler;
   let playing = false;
+  let starting = false;
+  let wantsToPlay = true;
   let beatIndex = 0;
   let nextBeatTime = 0;
 
@@ -47,7 +49,28 @@ export function initAmbientAudio(button) {
     noiseBuffer = context.createBuffer(1, context.sampleRate, context.sampleRate);
     const noise = noiseBuffer.getChannelData(0);
     for (let i = 0; i < noise.length; i += 1) noise[i] = Math.random() * 2 - 1;
+    context.addEventListener("statechange", () => {
+      if (context.state === "running" && wantsToPlay && !playing) beginPlayback();
+      if (context.state !== "running" && playing) {
+        playing = false;
+        window.clearInterval(scheduler);
+        updateButton(false);
+      }
+    });
     return true;
+  }
+
+  function updateButton(isPlaying) {
+    button.classList.toggle("is-playing", isPlaying);
+    button.setAttribute("aria-pressed", String(isPlaying));
+    button.setAttribute("aria-label", isPlaying ? "Выключить музыку" : "Включить музыку");
+  }
+
+  function unlockIOSAudio() {
+    const source = context.createBufferSource();
+    source.buffer = context.createBuffer(1, 1, context.sampleRate);
+    source.connect(context.destination);
+    source.start(0);
   }
 
   function connectWithSpace(node, amount = 0.2) {
@@ -157,31 +180,54 @@ export function initAmbientAudio(button) {
     }
   }
 
-  async function start() {
-    if (!context && !createAudioGraph()) return;
-    await context.resume();
-    if (playing) return;
+  function beginPlayback() {
+    if (playing || context.state !== "running") return;
     playing = true;
     beatIndex = 0;
     nextBeatTime = context.currentTime + 0.06;
-    button.classList.add("is-playing");
-    button.setAttribute("aria-pressed", "true");
-    button.setAttribute("aria-label", "Выключить музыку");
+    updateButton(true);
     scheduleAhead();
     scheduler = window.setInterval(scheduleAhead, 80);
   }
 
-  function stop() {
-    playing = false;
-    window.clearInterval(scheduler);
-    button.classList.remove("is-playing");
-    button.setAttribute("aria-pressed", "false");
-    button.setAttribute("aria-label", "Включить музыку");
+  async function start() {
+    wantsToPlay = true;
+    if (starting) return;
+    if (!context && !createAudioGraph()) return;
+    if (playing && context.state === "running") return;
+    starting = true;
+    try {
+      unlockIOSAudio();
+      await context.resume();
+      if (context.state === "running") beginPlayback();
+      else updateButton(false);
+    } finally {
+      starting = false;
+    }
   }
 
-  button.addEventListener("click", () => playing ? stop() : start().catch(() => {}));
-  start().catch(() => {});
-  document.addEventListener("pointerdown", (event) => {
-    if (!button.contains(event.target) && !playing) start().catch(() => {});
-  }, { once: true });
+  function stop() {
+    wantsToPlay = false;
+    playing = false;
+    window.clearInterval(scheduler);
+    updateButton(false);
+  }
+
+  button.addEventListener("click", (event) => {
+    event.stopPropagation();
+    if (playing) stop();
+    else start().catch(() => updateButton(false));
+  });
+  const unlockOnInteraction = (event) => {
+    if (event?.target && button.contains(event.target)) return;
+    if (wantsToPlay && (!playing || context?.state !== "running")) start().catch(() => updateButton(false));
+  };
+  document.addEventListener("touchend", unlockOnInteraction, { passive: true });
+  document.addEventListener("pointerdown", unlockOnInteraction, { passive: true });
+  document.addEventListener("click", unlockOnInteraction);
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) unlockOnInteraction();
+  });
+  updateButton(false);
+  if (!navigator.maxTouchPoints) start().catch(() => {});
 }
