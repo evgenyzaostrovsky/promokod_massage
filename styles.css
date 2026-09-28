@@ -150,8 +150,8 @@ button { font: inherit; }
 .chat-messages { display: flex; flex-direction: column; gap: 10px; padding: 18px 3px; overflow-y: auto; overscroll-behavior: contain; }
 .chat-message { align-self: flex-start; max-width: 84%; }
 .chat-message--client { align-self: flex-end; }
-.chat-message p { margin: 0; padding: 11px 13px; border: 1px solid rgba(255,255,255,.15); color: rgba(255,255,255,.87); background: rgba(255,255,255,.055); font-size: 13px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
-.chat-message--client p { border-color: #e9e3da; color: #080808; background: #e9e3da; }
+.chat-message p { position: relative; margin: 0; padding: 11px 15px; border: 1px solid rgba(255,255,255,.15); border-radius: 19px 19px 19px 5px; color: rgba(255,255,255,.87); background: rgba(255,255,255,.075); font-size: 13px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+.chat-message--client p { border-color: #e9e3da; border-radius: 19px 19px 5px 19px; color: #080808; background: #e9e3da; }
 .chat-message time { display: block; margin: 4px 3px 0; color: rgba(255,255,255,.3); font-size: 8px; text-align: left; }
 .chat-message--client time { text-align: right; }
 .chat-welcome { margin: auto; padding: 25px; color: rgba(255,255,255,.46); font-size: 12px; line-height: 1.6; text-align: center; }
