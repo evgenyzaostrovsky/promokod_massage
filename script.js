@@ -2,6 +2,7 @@ import { initAmbientAudio } from "./js/audio.js";
 import { initBookingWeather } from "./js/weather.js";
 import { createExtraQuest } from "./js/extra-quest.js";
 import { initAccount } from "./js/account.js";
+import { initChat } from "./js/chat.js";
 
 const hoursNode = document.querySelector("#hours");
 const minutesNode = document.querySelector("#minutes");
@@ -62,6 +63,7 @@ const timeSubmit = document.querySelector("#timeSubmit");
 const timeBack = document.querySelector("#timeBack");
 const soundToggle = document.querySelector("#soundToggle");
 const account = initAccount();
+initChat(account);
 
 const moscowClock = new Intl.DateTimeFormat("en-GB", {
   timeZone: "Europe/Moscow",

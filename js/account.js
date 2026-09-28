@@ -152,6 +152,7 @@ export function initAccount() {
   updateTrigger();
 
   return {
+    getCurrentPhone: currentPhone,
     ensureAuthenticated() { if (currentPhone()) return Promise.resolve(true); open(true); return new Promise((resolve) => { resolveAuth = resolve; }); },
     recordOrder(order) { const phone = currentPhone(); if (!phone) return; const all = read(ORDERS_KEY, {}); all[phone] ||= []; all[phone].push({ id: crypto.randomUUID(), createdAt: new Date().toISOString(), rating: 0, ...order }); write(ORDERS_KEY, all); },
   };
